@@ -9,7 +9,7 @@ using System.Web.Routing;
 
 namespace iSelectManager
 {
-    public class MvcApplication : System.Web.HttpApplication
+    public class Application : System.Web.HttpApplication
     {
         protected void Application_Start()
         {
