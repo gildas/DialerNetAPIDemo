@@ -40,6 +40,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ININ.IceLib">
+      <HintPath>..\..\lib\Dialer\IC4_2016_R1_P0(x86)\bin\ININ.IceLib.dll</HintPath>
+    </Reference>
+    <Reference Include="ININ.IceLib.Configuration">
+      <HintPath>..\..\lib\Dialer\IC4_2016_R1_P0(x86)\bin\ININ.IceLib.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="ININ.IceLib.Dialer">
+      <HintPath>..\..\lib\Dialer\IC4_2016_R1_P0(x86)\bin\ININ.IceLib.Dialer.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
