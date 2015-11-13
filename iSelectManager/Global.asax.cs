@@ -8,12 +8,18 @@ using System.Web.Optimization;
 using System.Web.Routing;
 using ININ.IceLib.Connection;
 using System.Web.Configuration;
+using ININ.IceLib.Configuration.Dialer;
+using System.Collections.ObjectModel;
 
 namespace iSelectManager
 {
     public class Application : System.Web.HttpApplication
     {
-        public Session Session { get; private set; }
+        public static Session ICSession { get; private set; }
+        public static DialerConfigurationManager DialerConfiguration { get; private set; }
+        public static ReadOnlyCollection<ConnectionConfiguration> ConnectionConfigurations { get; private set; }
+        public static ReadOnlyCollection<ContactListConfiguration> ContactlistConfigurations { get; private set; }
+        public static ReadOnlyCollection<CampaignConfiguration> CampaignConfigurations { get; private set; }
 
         protected void Application_Start()
         {
@@ -25,13 +31,52 @@ namespace iSelectManager
 
             try
             {
-                SessionSettings session_settings = new SessionSettings();
-                HostSettings host_settings = new HostSettings(new HostEndpoint(WebConfigurationManager.AppSettings["ICServer"]));
-                ICAuthSettings auth_settings = new ICAuthSettings(WebConfigurationManager.AppSettings["ICUser"], WebConfigurationManager.AppSettings["ICPassword"]);
+                var session_settings = new SessionSettings();
+                var host_settings = new HostSettings(new HostEndpoint(WebConfigurationManager.AppSettings["ICServer"]));
+                var auth_settings = new ICAuthSettings(WebConfigurationManager.AppSettings["ICUser"], WebConfigurationManager.AppSettings["ICPassword"]);
 
-                Session = new Session();
+                ICSession = new Session();
                 session_settings.ApplicationName = "iSelectManager";
-                Session.Connect(session_settings, host_settings, auth_settings, new StationlessSettings());
+                ICSession.Connect(session_settings, host_settings, auth_settings, new StationlessSettings());
+
+                DialerConfiguration = new DialerConfigurationManager(ICSession);
+
+                {
+                    var configurations = new ContactListConfigurationList(DialerConfiguration.ConfigurationManager);
+                    var query_settings = configurations.CreateQuerySettings();
+
+                    query_settings.SetPropertiesToRetrieveToAll();
+                    configurations.StartCaching(query_settings);
+                    ContactlistConfigurations = configurations.GetConfigurationList();
+
+                    foreach(var configuration in ContactlistConfigurations)
+                    {
+                        HttpContext.Current.Trace.Write("Dialer", string.Format("ContactList configuration: ", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
+                    }
+                }
+
+                {
+                    var configurations = new CampaignConfigurationList(DialerConfiguration.ConfigurationManager);
+
+                    configurations.StartCaching();
+                    CampaignConfigurations = configurations.GetConfigurationList();
+
+                    foreach(var configuration in CampaignConfigurations)
+                    {
+                        HttpContext.Current.Trace.Write("Dialer", string.Format("Connection Configuration: ", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
+                    }
+                }
+                {
+                    var configurations = new ConnectionConfigurationList(DialerConfiguration.ConfigurationManager);
+
+                    configurations.StartCaching();
+                    ConnectionConfigurations = configurations.GetConfigurationList();
+
+                    foreach (var configuration in ConnectionConfigurations)
+                    {
+                        HttpContext.Current.Trace.Write("Dialer", string.Format("Connection Configuration: ", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -41,9 +86,9 @@ namespace iSelectManager
 
         protected void Application_End()
         {
-            if (Session != null && Session.ConnectionState == ConnectionState.Up)
+            if (ICSession != null && ICSession.ConnectionState == ConnectionState.Up)
             {
-                Session.Disconnect();
+                ICSession.Disconnect();
             }
         }
     }
