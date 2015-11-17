@@ -59,8 +59,10 @@ namespace iSelectManager
 
                 {
                     var configurations = new CampaignConfigurationList(DialerConfiguration.ConfigurationManager);
+                    var query_settings = configurations.CreateQuerySettings();
 
-                    configurations.StartCaching();
+                    query_settings.SetPropertiesToRetrieveToAll();
+                    configurations.StartCaching(query_settings);
                     CampaignConfigurations = configurations.GetConfigurationList();
 
                     foreach (var configuration in CampaignConfigurations)
@@ -71,8 +73,10 @@ namespace iSelectManager
 
                 {
                     var configurations = new PolicySetConfigurationList(DialerConfiguration.ConfigurationManager);
+                    var query_settings = configurations.CreateQuerySettings();
 
-                    configurations.StartCaching();
+                    query_settings.SetPropertiesToRetrieveToAll();
+                    configurations.StartCaching(query_settings);
                     PolicySetConfigurations = configurations.GetConfigurationList();
 
                     foreach (var configuration in PolicySetConfigurations)
