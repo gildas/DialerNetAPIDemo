@@ -1,4 +1,5 @@
 ﻿using ININ.IceLib.Configuration;
+using ININ.IceLib.Dialer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,7 +17,7 @@ namespace iSelectManager.Models
 
         private WorkgroupConfiguration configuration { get; set; }
 
-        internal static Workgroup find_by_name(string name)
+        public static Workgroup find_by_name(string name)
         {
             var manager = ConfigurationManager.GetInstance(Application.ICSession);
             var configurations = new WorkgroupConfigurationList(manager);
@@ -52,10 +53,8 @@ namespace iSelectManager.Models
             Agents = new List<Agent>();
             foreach(var ic_member in ic_configuration.Members.Value)
             {
-                Agents.Add(new Agent { id = ic_member.Id, DisplayName = ic_member.DisplayName });
+                Agents.Add(Agent.find(ic_member));
             }
-
-            configuration = ic_configuration;
         }
     }
 }
