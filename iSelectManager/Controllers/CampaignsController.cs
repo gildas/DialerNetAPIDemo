@@ -105,6 +105,25 @@ namespace iSelectManager.Controllers
             return View(model);
         }
 
+        // POST: Campaigns/Activation/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Activation([Bind(Include = "id,ActiveAgents")] CampaignActiveAgentsViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                //db.Entry(campaign).State = EntityState.Modified;
+                //db.SaveChanges();
+                Campaign campaign = Campaign.find(model.id);
+
+                campaign.activate_agents(model.ActiveAgents);
+                return RedirectToAction("Index");
+            }
+            return View(model.Campaign);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

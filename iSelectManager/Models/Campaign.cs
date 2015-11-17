@@ -3,6 +3,7 @@ using ININ.IceLib.Configuration.Dialer;
 using ININ.IceLib.Dialer.Supervisor;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -139,10 +140,7 @@ namespace iSelectManager.Models
 
         public void apply_policies(IEnumerable<string> policy_ids)
         {
-            if (policy_ids.Count() == 0)
-            {
-                return;
-            }
+            if (policy_ids.Count() == 0) return;
             var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var query = new PolicySetConfigurationList(dialer_configuration.ConfigurationManager);
             var query_settings = query.CreateQuerySettings();
@@ -161,6 +159,26 @@ namespace iSelectManager.Models
                 }
             }
             configuration.Commit();
+        }
+
+        internal void activate_agents(IEnumerable<string> agent_ids)
+        {
+            if (agent_ids.Count() == 0) return;
+
+            var agent_manager = new AgentManager(Application.ICSession);
+            var active_agents = ActiveAgents;
+            var campaign_ids  = new Collection<ConfigurationId> { configuration.ConfigurationId };
+            var empty_ids     = new Collection<ConfigurationId>();
+
+            // First deactivate agents (all agents that where active and are not in the new list
+            var logoff = new Collection<string>(ActiveAgents.Where(x => !agent_ids.Any(y => y == x.id)).Select(agent => agent.id).ToList());
+
+            agent_manager.AllocateAgents(logoff, campaign_ids, empty_ids);
+
+            // Then activate agents
+            var logon = new Collection<string>(agent_ids.ToList());
+
+            agent_manager.AllocateAgents(logon, empty_ids, campaign_ids);
         }
     }
 }
