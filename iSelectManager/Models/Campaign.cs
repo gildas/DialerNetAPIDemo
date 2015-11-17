@@ -20,7 +20,7 @@ namespace iSelectManager.Models
         [Display(Name="Policy sets")]
         public ICollection<PolicySet> PolicySets { get; set; }
 
-        private ININ.IceLib.Configuration.Dialer.CampaignConfiguration CampaignConfiguration { get; set; }
+        private ININ.IceLib.Configuration.Dialer.CampaignConfiguration configuration { get; set; }
 
         public static ICollection<Campaign> find_all()
         {
@@ -65,7 +65,7 @@ namespace iSelectManager.Models
             AcdWorkgroup = string.Empty;
             ContactList = null;
             PolicySets = new List<PolicySet>();
-            CampaignConfiguration = null;
+            configuration = null;
         }
 
         public Campaign(ININ.IceLib.Configuration.Dialer.CampaignConfiguration ic_campaign)
@@ -80,16 +80,16 @@ namespace iSelectManager.Models
             {
                 PolicySets.Add(PolicySet.find(ic_policyset.Id));
             }
-            CampaignConfiguration = ic_campaign;
+            configuration = ic_campaign;
         }
 
         public IEnumerable<Agent> Agents()
         {
             List<Agent> agents = new List<Agent>();
 
-            var acd_workgroup = CampaignConfiguration.AcdWorkgroup;
+            var acd_workgroup = configuration.AcdWorkgroup;
 
-            var campaign_group = CampaignConfiguration.CampaignGroup;
+            var campaign_group = configuration.CampaignGroup;
 
             return agents;
         }
