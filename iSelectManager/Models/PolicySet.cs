@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ININ.IceLib.Configuration;
+using ININ.IceLib.Configuration.Dialer;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -16,51 +18,77 @@ namespace iSelectManager.Models
 
         public static ICollection<PolicySet> find_all()
         {
-            List<PolicySet> policysets = new List<PolicySet>();
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new PolicySetConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+            var policysets = new List<PolicySet>();
 
-            foreach (var ic_policyset in Application.PolicySetConfigurations)
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            foreach (var configuration in configurations)
             {
-                policysets.Add(new PolicySet(ic_policyset));
+                policysets.Add(new PolicySet(configuration));
             }
             return policysets;
         }
 
         public static ICollection<PolicySet> find_all_by_id(IEnumerable<string> ids)
         {
-            List<PolicySet> policysets = new List<PolicySet>();
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new PolicySetConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+            var policysets = new List<PolicySet>();
 
-            foreach (var ic_policyset in Application.PolicySetConfigurations)
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            foreach (var configuration in configurations)
             {
-                if (ids.Contains(ic_policyset.ConfigurationId.Id))
+                if (ids.Contains(configuration.ConfigurationId.Id))
                 {
-                    policysets.Add(new PolicySet(ic_policyset));
+                    policysets.Add(new PolicySet(configuration));
                 }
             }
             return policysets;
         }
 
-        public static PolicySet find(string p_id)
+        public static PolicySet find(string id)
         {
-            foreach (var ic_policyset in Application.PolicySetConfigurations)
-            {
-                if (p_id == ic_policyset.ConfigurationId.Id)
-                {
-                    return new PolicySet(ic_policyset);
-                }
-            }
-            return null;
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new PolicySetConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+
+            query_settings.SetFilterDefinition(PolicySetConfiguration.Property.Id, id, FilterMatchType.Exact);
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            if (configurations.Count() == 0) throw new KeyNotFoundException(id);
+            if (configurations.Count()  > 1) throw new IndexOutOfRangeException(id);
+            return new PolicySet(configurations.First());
         }
 
-        public static PolicySet find_by_name(string p_name)
+        public static PolicySet find_by_name(string name)
         {
-            foreach (var ic_policyset in Application.PolicySetConfigurations)
-            {
-                if (p_name == ic_policyset.ConfigurationId.DisplayName)
-                {
-                    return new PolicySet(ic_policyset);
-                }
-            }
-            return null;
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new PolicySetConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+
+            query_settings.SetFilterDefinition(PolicySetConfiguration.Property.DisplayName, name, FilterMatchType.Exact);
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            if (configurations.Count() == 0) throw new KeyNotFoundException(name);
+            if (configurations.Count()  > 1) throw new IndexOutOfRangeException(name);
+            return new PolicySet(configurations.First());
         }
 
         public PolicySet()

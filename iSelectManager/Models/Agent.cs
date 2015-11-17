@@ -13,27 +13,24 @@ namespace iSelectManager.Models
         public string id { get; set; }
         [Display(Name = "Agent")]
         public string DisplayName { get; set; }
+        public IEnumerable<Campaign> LoggedInCampaigns { get; set; }
 
         private UserConfiguration configuration { get; set; }
 
         public static Agent find(string id)
         {
-            var manager = ConfigurationManager.GetInstance(Application.ICSession);
-            var configurations = new UserConfigurationList(manager);
-            var querySettings = configurations.CreateQuerySettings();
+            var query = new UserConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
+            var query_settings = query.CreateQuerySettings();
 
-            querySettings.SetFilterDefinition(UserConfiguration.Property.Id, id, FilterMatchType.Exact);
-            querySettings.SetRightsFilterToView();
-            querySettings.SetPropertiesToRetrieve(new[] { UserConfiguration.Property.Id, UserConfiguration.Property.DisplayName, UserConfiguration.Property.StatusText });
-            configurations.StartCaching(querySettings);
-
-            var results = configurations.GetConfigurationList();
-
-            configurations.StopCaching();
+            query_settings.SetFilterDefinition(UserConfiguration.Property.Id, id, FilterMatchType.Exact);
+            query_settings.SetRightsFilterToView();
+            query_settings.SetPropertiesToRetrieve(new[] { UserConfiguration.Property.Id, UserConfiguration.Property.DisplayName, UserConfiguration.Property.StatusText });
+            query.StartCaching(query_settings);
+            var results = query.GetConfigurationList();
+            query.StopCaching();
 
             if (results.Count() == 0) throw new KeyNotFoundException(id);
             if (results.Count()  > 1) throw new IndexOutOfRangeException(id);
-
             return new Agent(results.First());
         }
 

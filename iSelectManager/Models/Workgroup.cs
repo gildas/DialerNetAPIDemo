@@ -19,18 +19,15 @@ namespace iSelectManager.Models
 
         public static Workgroup find_by_name(string name)
         {
-            var manager = ConfigurationManager.GetInstance(Application.ICSession);
-            var configurations = new WorkgroupConfigurationList(manager);
-            var querySettings = configurations.CreateQuerySettings();
+            var query = new WorkgroupConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
+            var query_settings = query.CreateQuerySettings();
 
-            querySettings.SetFilterDefinition(WorkgroupConfiguration.Property.DisplayName, name, FilterMatchType.Exact);
-            querySettings.SetRightsFilterToView();
-            querySettings.SetPropertiesToRetrieve(new[] { WorkgroupConfiguration.Property.Id, WorkgroupConfiguration.Property.DisplayName, WorkgroupConfiguration.Property.Members });
-            configurations.StartCaching(querySettings);
-
-            var results = configurations.GetConfigurationList();
-
-            configurations.StopCaching();
+            query_settings.SetFilterDefinition(WorkgroupConfiguration.Property.DisplayName, name, FilterMatchType.Exact);
+            query_settings.SetRightsFilterToView();
+            query_settings.SetPropertiesToRetrieve(new[] { WorkgroupConfiguration.Property.Id, WorkgroupConfiguration.Property.DisplayName, WorkgroupConfiguration.Property.Members });
+            query.StartCaching(query_settings);
+            var results = query.GetConfigurationList();
+            query.StopCaching();
 
             if (results.Count() == 0) throw new KeyNotFoundException(name);
             if (results.Count()  > 1) throw new IndexOutOfRangeException(name);
@@ -53,7 +50,14 @@ namespace iSelectManager.Models
             Agents = new List<Agent>();
             foreach(var ic_member in ic_configuration.Members.Value)
             {
-                Agents.Add(Agent.find(ic_member));
+                try
+                {
+                    Agents.Add(Agent.find(ic_member));
+                }
+                catch(KeyNotFoundException)
+                {
+                    //TODO: Trace/Warn?
+                }
             }
         }
     }

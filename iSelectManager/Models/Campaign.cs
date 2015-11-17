@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using ININ.IceLib.Configuration;
+using ININ.IceLib.Configuration.Dialer;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
@@ -20,38 +23,55 @@ namespace iSelectManager.Models
 
         public static ICollection<Campaign> find_all()
         {
-            List<Campaign> campaigns = new List<Campaign>();
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new CampaignConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+            var campaigns = new List<Campaign>();
 
-            foreach (var ic_campaign in Application.CampaignConfigurations)
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            foreach (var configuration in configurations)
             {
-                var campaign = new Campaign(ic_campaign);
-                campaigns.Add(campaign);
+                campaigns.Add(new Campaign(configuration));
             }
             return campaigns;
         }
 
-        public static Campaign find(string p_id)
+        public static Campaign find(string id)
         {
-            foreach (var ic_campaign in Application.CampaignConfigurations)
-            {
-                if (p_id == ic_campaign.ConfigurationId.Id)
-                {
-                    return new Campaign(ic_campaign);
-                }
-            }
-            return null;
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new CampaignConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+
+            query_settings.SetFilterDefinition(CampaignConfiguration.Property.Id, id, FilterMatchType.Exact);
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            if (configurations.Count() == 0) throw new KeyNotFoundException(id);
+            if (configurations.Count()  > 1) throw new IndexOutOfRangeException(id);
+            return new Campaign(configurations.First());
         }
 
-        public static Campaign find_by_name(string p_name)
+        public static Campaign find_by_name(string name)
         {
-            foreach (var ic_campaign in Application.CampaignConfigurations)
-            {
-                if (p_name == ic_campaign.ConfigurationId.DisplayName)
-                {
-                    return new Campaign(ic_campaign);
-                }
-            }
-            return null;
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new CampaignConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+
+            query_settings.SetFilterDefinition(CampaignConfiguration.Property.DisplayName, name, FilterMatchType.Exact);
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            if (configurations.Count() == 0) throw new KeyNotFoundException(name);
+            if (configurations.Count()  > 1) throw new IndexOutOfRangeException(name);
+            return new Campaign(configurations.First());
         }
 
         public Campaign()
@@ -69,12 +89,26 @@ namespace iSelectManager.Models
             id = ic_campaign.ConfigurationId.Id;
             DisplayName = ic_campaign.ConfigurationId.DisplayName;
             AcdWorkgroup = ic_campaign.AcdWorkgroup.Value.DisplayName;
-            ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
+            try
+            {
+                ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
+            }
+            catch(KeyNotFoundException)
+            {
+                //TODO: Trace/Warn?
+            }
 
             PolicySets = new List<PolicySet>();
             foreach (var ic_policyset in ic_campaign.PolicySets.Value)
             {
-                PolicySets.Add(PolicySet.find(ic_policyset.Id));
+                try
+                {
+                    PolicySets.Add(PolicySet.find(ic_policyset.Id));
+                }
+                catch (KeyNotFoundException)
+                {
+                    //TODO: Trace/Warn?
+                }
             }
             configuration = ic_campaign;
         }
@@ -85,9 +119,17 @@ namespace iSelectManager.Models
             {
                 return;
             }
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new PolicySetConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+
+            query.StartCaching(query_settings);
+            var policyset_configurations = query.GetConfigurationList();
+            query.StopCaching();
+
             configuration.PrepareForEdit();
             configuration.PolicySets.Value.Clear();
-            foreach (var ic_policyset in Application.PolicySetConfigurations)
+            foreach (var ic_policyset in policyset_configurations)
             {
                 if (policy_ids.Contains(ic_policyset.ConfigurationId.Id))
                 {

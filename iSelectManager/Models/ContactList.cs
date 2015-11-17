@@ -1,4 +1,5 @@
-﻿using ININ.IceLib.Configuration.Dialer;
+﻿using ININ.IceLib.Configuration;
+using ININ.IceLib.Configuration.Dialer;
 using ININ.IceLib.Configuration.Dialer.DataTypes;
 using System;
 using System.Collections.Generic;
@@ -20,27 +21,38 @@ namespace iSelectManager.Models
 
         public static ICollection<ContactList> find_all()
         {
-            List<ContactList> contacts_lists = new List<ContactList>();
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new ContactListConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+            var contactlists = new List<ContactList>();
 
-            foreach (var ic_contact_list in Application.ContactlistConfigurations)
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            foreach (var configuration in configurations)
             {
-                var contact_list = new ContactList(ic_contact_list);
-
-                contacts_lists.Add(contact_list);
+                contactlists.Add(new ContactList(configuration));
             }
-            return contacts_lists;
+            return contactlists;
         }
 
-        public static ContactList find(string p_id)
+        public static ContactList find(string id)
         {
-            foreach (var ic_contact_list in Application.ContactlistConfigurations)
-            {
-                if (p_id == ic_contact_list.ConfigurationId.Id)
-                {
-                    return new ContactList(ic_contact_list);
-                }
-            }
-            return null;
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var query = new ContactListConfigurationList(dialer_configuration.ConfigurationManager);
+            var query_settings = query.CreateQuerySettings();
+
+            query_settings.SetFilterDefinition(ContactListConfiguration.Property.Id, id, FilterMatchType.Exact);
+            query_settings.SetPropertiesToRetrieveToAll();
+            query.StartCaching(query_settings);
+            var configurations = query.GetConfigurationList();
+            query.StopCaching();
+
+            if (configurations.Count() == 0) throw new KeyNotFoundException(id);
+            if (configurations.Count()  > 1) throw new IndexOutOfRangeException(id);
+            return new ContactList(configurations.First());
         }
 
         public ContactList()
@@ -71,10 +83,11 @@ namespace iSelectManager.Models
 
         public int ScheduleCall(string column, string key, Campaign campaign, string agent_id, string site_id, DateTime when)
         {
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var select = new SelectCommand(configuration);
 
             select.Where = new BinaryExpression(new ColumnExpression(configuration.ColumnMap[column]), new ConstantExpression(key, configuration.ColumnMap[column]), BinaryOperationType.Equal);
-            Collection<Dictionary<string, object>> contacts = configuration.GetContacts(Application.DialerConfiguration.GetHttpRequestKey(configuration.ConfigurationId), select);
+            Collection<Dictionary<string, object>> contacts = configuration.GetContacts(dialer_configuration.GetHttpRequestKey(configuration.ConfigurationId), select);
 
             var calls = new List<ScheduledCall>();
 
