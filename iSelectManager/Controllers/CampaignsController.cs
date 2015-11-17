@@ -54,7 +54,6 @@ namespace iSelectManager.Controllers
                 id = campaign.id,
                 DisplayName = campaign.DisplayName,
                 Campaign = campaign,
-                PolicySetLabel = Helpers.DisplayName<PolicySet>(t => t.DisplayName),
                 PolicySets = policysets.Select(x => new SelectListItem { Text = x.DisplayName, Value = x.id }),
                 SelectedPolicySets = campaign.PolicySets.Select(x => x.id)
             };
