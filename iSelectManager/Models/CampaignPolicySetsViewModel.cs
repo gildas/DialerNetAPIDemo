@@ -8,9 +8,10 @@ namespace iSelectManager.Models
 {
     public class CampaignPolicySetsViewModel
     {
-        public string id { get; set; }
-        public string DisplayName { get; set; }
+        public string id { get { return Campaign.id; } }
+        public string DisplayName { get { return Campaign.DisplayName; } }
         public Campaign Campaign { get; set; }
+        public string PolicySetLabel { get; set; }
         public IEnumerable<string> SelectedPolicySets { get; set; }
         public IEnumerable<SelectListItem> PolicySets { get; set; }
     }
