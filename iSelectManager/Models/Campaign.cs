@@ -85,17 +85,20 @@ namespace iSelectManager.Models
 
         public void apply_policies(IEnumerable<string> policy_ids)
         {
-            //var update = new UpdateCommand(configuration, null);
-
-            //update.Where = new BinaryExpression(new ColumnExpression(search_column), new ConstantExpression(key, search_column), BinaryOperationType.Equal);
-
-            //update.UpdateData[value_column] = new_value;
-
-            //ContactListTransaction transaction = new ContactListTransaction();
-            //transaction.Add(update);
-            //return configuration.RunTransaction(transaction);
-
-            var update = new CampaignPropertyRuleAction { Property = CampaignConfiguration.Property.PolicySets, PropertyValue = PolicySet.find_all_by_id(policy_ids) };
+            if (policy_ids.Count() == 0)
+            {
+                return;
+            }
+            configuration.PrepareForEdit();
+            configuration.PolicySets.Value.Clear();
+            foreach (var ic_policyset in Application.PolicySetConfigurations)
+            {
+                if (policy_ids.Contains(ic_policyset.ConfigurationId.Id))
+                {
+                    configuration.PolicySets.Value.Add(ic_policyset.ConfigurationId);
+                }
+            }
+            configuration.Commit();
         }
     }
 }
