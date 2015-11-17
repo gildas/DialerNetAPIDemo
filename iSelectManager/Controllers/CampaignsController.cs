@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using iSelectManager.Models;
+using ININ.IceLib.Dialer.Supervisor;
 
 namespace iSelectManager.Controllers
 {
@@ -77,6 +78,31 @@ namespace iSelectManager.Controllers
                 return RedirectToAction("Index");
             }
             return View(model.Campaign);
+        }
+
+        // GET: Campaigns/Activation/5
+        public ActionResult Activation(string id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Campaign campaign = Campaign.find(id);
+            if (campaign == null)
+            {
+                return HttpNotFound();
+            }
+
+            CampaignActiveAgentsViewModel model = new CampaignActiveAgentsViewModel
+            {
+                id = campaign.id,
+                DisplayName = campaign.DisplayName,
+                Campaign = campaign,
+                Agents = campaign.AcdWorkgroup.Agents.Select(x => new SelectListItem { Text = x.DisplayName, Value = x.id }),
+                ActiveAgents =  campaign.ActiveAgents.Select(x => x.id)
+            };
+
+            return View(model);
         }
 
         protected override void Dispose(bool disposing)

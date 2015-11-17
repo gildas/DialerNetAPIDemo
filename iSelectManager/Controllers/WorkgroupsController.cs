@@ -35,21 +35,6 @@ namespace iSelectManager.Controllers
             return View(workgroup);
         }
 
-        // GET: Workgroups/Activation/?name=&campaign=?
-        public ActionResult Activation(string name, string campaign_id)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Workgroup workgroup = Workgroup.find_by_name(name);
-            if (workgroup == null)
-            {
-                return HttpNotFound();
-            }
-            return View(workgroup);
-        }
-
         // GET: Workgroups/Create
         public ActionResult Create()
         {

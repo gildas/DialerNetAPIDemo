@@ -17,6 +17,23 @@ namespace iSelectManager.Models
 
         private WorkgroupConfiguration configuration { get; set; }
 
+        public static Workgroup find(string id)
+        {
+            var query = new WorkgroupConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
+            var query_settings = query.CreateQuerySettings();
+
+            query_settings.SetFilterDefinition(WorkgroupConfiguration.Property.Id, id, FilterMatchType.Exact);
+            query_settings.SetRightsFilterToView();
+            query_settings.SetPropertiesToRetrieve(new[] { WorkgroupConfiguration.Property.Id, WorkgroupConfiguration.Property.DisplayName, WorkgroupConfiguration.Property.Members });
+            query.StartCaching(query_settings);
+            var results = query.GetConfigurationList();
+            query.StopCaching();
+
+            if (results.Count() == 0) throw new KeyNotFoundException(id);
+            if (results.Count()  > 1) throw new IndexOutOfRangeException(id);
+            return new Workgroup(results.First());
+        }
+
         public static Workgroup find_by_name(string name)
         {
             var query = new WorkgroupConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));

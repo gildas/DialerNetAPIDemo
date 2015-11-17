@@ -31,6 +31,7 @@ namespace iSelectManager.Models
 
             if (results.Count() == 0) throw new KeyNotFoundException(id);
             if (results.Count()  > 1) throw new IndexOutOfRangeException(id);
+
             return new Agent(results.First());
         }
 

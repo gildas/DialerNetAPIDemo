@@ -198,6 +198,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Agent.cs" />
     <Compile Include="Models\Campaign.cs" />
+    <Compile Include="Models\CampaignActiveAgentsViewModel.cs" />
     <Compile Include="Models\CampaignPolicySetsViewModel.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\ContactList.cs" />
@@ -293,7 +294,7 @@
     <Content Include="Views\Workgroups\Details.cshtml" />
     <Content Include="Views\Workgroups\Edit.cshtml" />
     <Content Include="Views\Workgroups\Index.cshtml" />
-    <Content Include="Views\Workgroups\Activation.cshtml" />
+    <Content Include="Views\Campaigns\Activation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

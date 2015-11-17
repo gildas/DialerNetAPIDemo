@@ -28,6 +28,8 @@ namespace iSelectManager.Models
         public System.Data.Entity.DbSet<iSelectManager.Models.PolicySet> PolicySets { get; set; }
 
         public System.Data.Entity.DbSet<iSelectManager.Models.Workgroup> Workgroups { get; set; }
+
+        public System.Data.Entity.DbSet<iSelectManager.Models.CampaignActiveAgentsViewModel> CampaignActiveAgentsViewModels { get; set; }
     
     }
 }

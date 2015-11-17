@@ -1,5 +1,6 @@
 ﻿using ININ.IceLib.Configuration;
 using ININ.IceLib.Configuration.Dialer;
+using ININ.IceLib.Dialer.Supervisor;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,11 +14,12 @@ namespace iSelectManager.Models
         [Display(Name="Campaign")]
         public string DisplayName { get; set; }
         [Display(Name = "Workgroup")]
-        public string AcdWorkgroup { get; set; }
+        public Workgroup AcdWorkgroup { get; set; }
         [Display(Name="Contact List")]
         public ContactList ContactList { get; set; }
         [Display(Name="Policy sets")]
         public ICollection<PolicySet> PolicySets { get; set; }
+        public ICollection<Agent> ActiveAgents { get; set; }
 
         private ININ.IceLib.Configuration.Dialer.CampaignConfiguration configuration { get; set; }
 
@@ -78,7 +80,7 @@ namespace iSelectManager.Models
         {
             id = string.Empty;
             DisplayName = string.Empty;
-            AcdWorkgroup = string.Empty;
+            AcdWorkgroup = null;
             ContactList = null;
             PolicySets = new List<PolicySet>();
             configuration = null;
@@ -88,7 +90,14 @@ namespace iSelectManager.Models
         {
             id = ic_campaign.ConfigurationId.Id;
             DisplayName = ic_campaign.ConfigurationId.DisplayName;
-            AcdWorkgroup = ic_campaign.AcdWorkgroup.Value.DisplayName;
+            try
+            {
+                AcdWorkgroup = Workgroup.find(ic_campaign.AcdWorkgroup.Value.Id);
+            }
+            catch(KeyNotFoundException)
+            {
+                //TODO: Trace/Warn?
+            }
             try
             {
                 ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
@@ -106,6 +115,21 @@ namespace iSelectManager.Models
                     PolicySets.Add(PolicySet.find(ic_policyset.Id));
                 }
                 catch (KeyNotFoundException)
+                {
+                    //TODO: Trace/Warn?
+                }
+            }
+
+            var agent_manager = new AgentManager(Application.ICSession);
+
+            ActiveAgents = new List<Agent>();
+            foreach (var agent_id in agent_manager.GetActiveAgentsForCampaign(ic_campaign.ConfigurationId))
+            {
+                try
+                {
+                    ActiveAgents.Add(Agent.find(agent_id));
+                }
+                catch(KeyNotFoundException)
                 {
                     //TODO: Trace/Warn?
                 }
