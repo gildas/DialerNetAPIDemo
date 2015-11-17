@@ -24,30 +24,19 @@ namespace iSelectManager.Controllers
         // GET: Campaigns/Details/5
         public ActionResult Details(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             Campaign campaign = Campaign.find(id);
-            if (campaign == null)
-            {
-                return HttpNotFound();
-            }
+            if (campaign == null) return HttpNotFound();
             return View(campaign);
         }
 
         // GET: Campaigns/Edit/5
         public ActionResult Edit(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             Campaign campaign = Campaign.find(id);
-            if (campaign == null)
-            {
-                return HttpNotFound();
-            }
+
+            if (campaign == null) return HttpNotFound();
             var policysets = PolicySet.find_all();
 
             CampaignPolicySetsViewModel model = new CampaignPolicySetsViewModel
@@ -74,6 +63,7 @@ namespace iSelectManager.Controllers
                 //db.SaveChanges();
                 Campaign campaign = Campaign.find(model.id);
 
+                if (campaign == null) return HttpNotFound();
                 campaign.apply_policies(model.SelectedPolicySets);
                 return RedirectToAction("Index");
             }
@@ -83,16 +73,10 @@ namespace iSelectManager.Controllers
         // GET: Campaigns/Activation/5
         public ActionResult Activation(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             Campaign campaign = Campaign.find(id);
-            if (campaign == null)
-            {
-                return HttpNotFound();
-            }
 
+            if (campaign == null) return HttpNotFound();
             CampaignActiveAgentsViewModel model = new CampaignActiveAgentsViewModel
             {
                 id = campaign.id,
@@ -118,6 +102,7 @@ namespace iSelectManager.Controllers
                 //db.SaveChanges();
                 Campaign campaign = Campaign.find(model.id);
 
+                if (campaign == null) return HttpNotFound();
                 campaign.activate_agents(model.ActiveAgents);
                 return RedirectToAction("Index");
             }
