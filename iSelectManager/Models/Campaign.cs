@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ININ.IceLib.Configuration.Dialer;
+using ININ.IceLib.Configuration.Dialer.DataTypes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -84,6 +86,21 @@ namespace iSelectManager.Models
             var campaign_group = CampaignConfiguration.CampaignGroup;
 
             return agents;
+        }
+
+        public void apply_policies(IEnumerable<string> policy_ids)
+        {
+            //var update = new UpdateCommand(configuration, null);
+
+            //update.Where = new BinaryExpression(new ColumnExpression(search_column), new ConstantExpression(key, search_column), BinaryOperationType.Equal);
+
+            //update.UpdateData[value_column] = new_value;
+
+            //ContactListTransaction transaction = new ContactListTransaction();
+            //transaction.Add(update);
+            //return configuration.RunTransaction(transaction);
+
+            var update = new CampaignPropertyRuleAction { Property = CampaignConfiguration.Property.PolicySets, PropertyValue = PolicySet.find_all_by_id(policy_ids) };
         }
     }
 }

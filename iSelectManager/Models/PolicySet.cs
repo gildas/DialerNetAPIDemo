@@ -25,6 +25,20 @@ namespace iSelectManager.Models
             return policysets;
         }
 
+        public static ICollection<PolicySet> find_all_by_id(IEnumerable<string> ids)
+        {
+            List<PolicySet> policysets = new List<PolicySet>();
+
+            foreach (var ic_policyset in Application.PolicySetConfigurations)
+            {
+                if (ids.Contains(ic_policyset.ConfigurationId.Id))
+                {
+                    policysets.Add(new PolicySet(ic_policyset));
+                }
+            }
+            return policysets;
+        }
+
         public static PolicySet find(string p_id)
         {
             foreach (var ic_policyset in Application.PolicySetConfigurations)

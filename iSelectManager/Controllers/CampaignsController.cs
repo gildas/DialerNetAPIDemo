@@ -51,6 +51,8 @@ namespace iSelectManager.Controllers
 
             CampaignPolicySetsViewModel model = new CampaignPolicySetsViewModel
             {
+                id = campaign.id,
+                DisplayName = campaign.DisplayName,
                 Campaign = campaign,
                 PolicySetLabel = Helpers.DisplayName<PolicySet>(t => t.DisplayName),
                 PolicySets = policysets.Select(x => new SelectListItem { Text = x.DisplayName, Value = x.id }),
@@ -64,15 +66,18 @@ namespace iSelectManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,DisplayName")] Campaign campaign)
+        public ActionResult Edit([Bind(Include = "id,SelectedPolicySets")] CampaignPolicySetsViewModel model)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(campaign).State = EntityState.Modified;
-                db.SaveChanges();
+                //db.Entry(campaign).State = EntityState.Modified;
+                //db.SaveChanges();
+                Campaign campaign = Campaign.find(model.id);
+
+                campaign.apply_policies(model.SelectedPolicySets);
                 return RedirectToAction("Index");
             }
-            return View(campaign);
+            return View(model.Campaign);
         }
 
         protected override void Dispose(bool disposing)
