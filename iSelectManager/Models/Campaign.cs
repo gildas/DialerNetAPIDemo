@@ -13,7 +13,11 @@ namespace iSelectManager.Models
         public string id { get; set; }
         [Display(Name="Campaign")]
         public string DisplayName { get; set; }
+        [Display(Name = "Workgroup")]
+        public string AcdWorkgroup { get; set; }
+        [Display(Name="Contact List")]
         public ContactList ContactList { get; set; }
+        [Display(Name="Policy sets")]
         public ICollection<PolicySet> PolicySets { get; set; }
 
         private ININ.IceLib.Configuration.Dialer.CampaignConfiguration CampaignConfiguration { get; set; }
@@ -58,6 +62,7 @@ namespace iSelectManager.Models
         {
             id = string.Empty;
             DisplayName = string.Empty;
+            AcdWorkgroup = string.Empty;
             ContactList = null;
             PolicySets = new List<PolicySet>();
             CampaignConfiguration = null;
@@ -67,6 +72,7 @@ namespace iSelectManager.Models
         {
             id = ic_campaign.ConfigurationId.Id;
             DisplayName = ic_campaign.ConfigurationId.DisplayName;
+            AcdWorkgroup = ic_campaign.AcdWorkgroup.Value.DisplayName;
             ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
 
             PolicySets = new List<PolicySet>();
