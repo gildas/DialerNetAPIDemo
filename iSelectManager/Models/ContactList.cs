@@ -41,6 +41,14 @@ namespace iSelectManager.Models
             return null;
         }
 
+        public ContactList()
+        {
+            id = string.Empty;
+            DisplayName = string.Empty;
+            configuration = null;
+            AffectedRecords = -1;
+        }
+
         public ContactList(ININ.IceLib.Configuration.Dialer.ContactListConfiguration ic_contactlist)
         {
             id = ic_contactlist.ConfigurationId.Id;

@@ -47,6 +47,13 @@ namespace iSelectManager.Models
             return null;
         }
 
+        public PolicySet()
+        {
+            id = string.Empty;
+            DisplayName = string.Empty;
+            configuration = null;
+        }
+
         public PolicySet(ININ.IceLib.Configuration.Dialer.PolicySetConfiguration ic_policyset)
         {
             id = ic_policyset.ConfigurationId.Id;

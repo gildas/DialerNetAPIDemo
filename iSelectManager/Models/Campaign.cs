@@ -50,6 +50,15 @@ namespace iSelectManager.Models
             return null;
         }
 
+        public Campaign()
+        {
+            id = string.Empty;
+            DisplayName = string.Empty;
+            ContactList = null;
+            PolicySets = new List<PolicySet>();
+            CampaignConfiguration = null;
+        }
+
         public Campaign(ININ.IceLib.Configuration.Dialer.CampaignConfiguration ic_campaign)
         {
             id = ic_campaign.ConfigurationId.Id;
