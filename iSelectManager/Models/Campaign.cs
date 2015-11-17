@@ -83,17 +83,6 @@ namespace iSelectManager.Models
             configuration = ic_campaign;
         }
 
-        public IEnumerable<Agent> Agents()
-        {
-            List<Agent> agents = new List<Agent>();
-
-            var acd_workgroup = configuration.AcdWorkgroup;
-
-            var campaign_group = configuration.CampaignGroup;
-
-            return agents;
-        }
-
         public void apply_policies(IEnumerable<string> policy_ids)
         {
             //var update = new UpdateCommand(configuration, null);
