@@ -1,0 +1,35 @@
+﻿@model iSelectManager.Models.Campaign
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Campaign</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.DisplayName)</dt>
+        <dd>@Html.DisplayFor(model => model.DisplayName)</dd>
+
+        <dt>Contact List</dt>
+        <dd>@Html.DisplayFor(model => model.ContactList.DisplayName)</dd>
+    </dl>
+<table class="table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.DisplayName)</th>
+        <th></th>
+    </tr>
+@foreach (var item in Model.Agents()) {
+    <tr>
+        <td>@Html.DisplayFor(modelItem => item.DisplayName)</td>
+        <td>@Html.ActionLink("Logoff", "Logoff", new { id=item.id, campaign=Model })</td>
+    </tr>
+}
+</table>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

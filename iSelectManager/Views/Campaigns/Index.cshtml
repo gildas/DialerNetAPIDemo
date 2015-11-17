@@ -1,0 +1,24 @@
+﻿@model IEnumerable<iSelectManager.Models.Campaign>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<table class="table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.DisplayName)</th>
+        <th>Contact List</th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>@Html.DisplayFor(modelItem => item.DisplayName)</td>
+        <td>@Html.DisplayFor(modelItem => item.ContactList.DisplayName)</td>
+        <td>@Html.ActionLink("Manage", "Edit", new { id=item.id })</td>
+    </tr>
+}
+
+</table>

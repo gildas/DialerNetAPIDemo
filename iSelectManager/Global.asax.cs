@@ -9,6 +9,7 @@ using System.Web.Routing;
 using ININ.IceLib.Connection;
 using System.Web.Configuration;
 using ININ.IceLib.Configuration.Dialer;
+using ININ.IceLib.People;
 using System.Collections.ObjectModel;
 
 namespace iSelectManager
@@ -17,9 +18,10 @@ namespace iSelectManager
     {
         public static Session ICSession { get; private set; }
         public static DialerConfigurationManager DialerConfiguration { get; private set; }
-        public static ReadOnlyCollection<ConnectionConfiguration> ConnectionConfigurations { get; private set; }
+        public static PeopleManager PeopleManager { get; private set; }
         public static ReadOnlyCollection<ContactListConfiguration> ContactlistConfigurations { get; private set; }
         public static ReadOnlyCollection<CampaignConfiguration> CampaignConfigurations { get; private set; }
+        public static ReadOnlyCollection<PolicySetConfiguration> PolicySetConfigurations { get; private set; }
 
         protected void Application_Start()
         {
@@ -49,9 +51,9 @@ namespace iSelectManager
                     configurations.StartCaching(query_settings);
                     ContactlistConfigurations = configurations.GetConfigurationList();
 
-                    foreach(var configuration in ContactlistConfigurations)
+                    foreach (var configuration in ContactlistConfigurations)
                     {
-                        HttpContext.Current.Trace.Write("Dialer", string.Format("ContactList configuration: ", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
+                        HttpContext.Current.Trace.Write("Dialer", string.Format("ContactList configuration: {1} ({0})", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
                     }
                 }
 
@@ -61,21 +63,27 @@ namespace iSelectManager
                     configurations.StartCaching();
                     CampaignConfigurations = configurations.GetConfigurationList();
 
-                    foreach(var configuration in CampaignConfigurations)
+                    foreach (var configuration in CampaignConfigurations)
                     {
-                        HttpContext.Current.Trace.Write("Dialer", string.Format("Connection Configuration: ", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
+                        HttpContext.Current.Trace.Write("Dialer", string.Format("Connection Configuration: {1} ({0})", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
                     }
                 }
+
                 {
-                    var configurations = new ConnectionConfigurationList(DialerConfiguration.ConfigurationManager);
+                    var configurations = new PolicySetConfigurationList(DialerConfiguration.ConfigurationManager);
 
                     configurations.StartCaching();
-                    ConnectionConfigurations = configurations.GetConfigurationList();
+                    PolicySetConfigurations = configurations.GetConfigurationList();
 
-                    foreach (var configuration in ConnectionConfigurations)
+                    foreach (var configuration in PolicySetConfigurations)
                     {
-                        HttpContext.Current.Trace.Write("Dialer", string.Format("Connection Configuration: ", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
+                        HttpContext.Current.Trace.Write("Dialer", string.Format("Policy Set Configuration: {1} ({0})", configuration.ConfigurationId.Id, configuration.ConfigurationId.DisplayName));
                     }
+                }
+
+                PeopleManager = PeopleManager.GetInstance(ICSession);
+
+                {
                 }
             }
             catch (Exception e)
