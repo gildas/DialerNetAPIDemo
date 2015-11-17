@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -8,6 +9,7 @@ namespace iSelectManager.Models
     public class PolicySet
     {
         public string id { get; set; }
+        [Display(Name="Policy Set")]
         public string DisplayName { get; set; }
 
         private ININ.IceLib.Configuration.Dialer.PolicySetConfiguration configuration { get; set; }

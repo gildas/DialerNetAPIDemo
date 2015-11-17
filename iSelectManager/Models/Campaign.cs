@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -8,6 +9,7 @@ namespace iSelectManager.Models
     public class Campaign
     {
         public string id { get; set; }
+        [Display(Name="Campaign")]
         public string DisplayName { get; set; }
         public ContactList ContactList { get; set; }
         public ICollection<PolicySet> PolicySets { get; set; }

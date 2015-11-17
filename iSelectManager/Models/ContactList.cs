@@ -3,6 +3,7 @@ using ININ.IceLib.Configuration.Dialer.DataTypes;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -11,6 +12,7 @@ namespace iSelectManager.Models
     public class ContactList
     {
         public string id { get; set; }
+        [Display(Name="Contact List")]
         public string DisplayName { get; set; }
         public int AffectedRecords { get; set; }
 
