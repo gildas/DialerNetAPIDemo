@@ -26,6 +26,8 @@ namespace iSelectManager.Models
         public System.Data.Entity.DbSet<iSelectManager.Models.Agent> Agents { get; set; }
 
         public System.Data.Entity.DbSet<iSelectManager.Models.PolicySet> PolicySets { get; set; }
+
+        public System.Data.Entity.DbSet<iSelectManager.Models.Workgroup> Workgroups { get; set; }
     
     }
 }

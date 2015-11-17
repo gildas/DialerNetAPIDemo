@@ -36,6 +36,7 @@
             @Html.LabelFor(model => model.Campaign.AcdWorkgroup, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DisplayFor(model => model.Campaign.AcdWorkgroup)
+                @Html.ActionLink("Manage Agent Activations", "Activation", "Workgroups", new { name = Model.Campaign.AcdWorkgroup, campaign = Model.id }, null)
             </div>
         </div>
 
