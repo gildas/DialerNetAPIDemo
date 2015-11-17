@@ -17,14 +17,14 @@ namespace iSelectManager.Models
 
         private UserConfiguration configuration { get; set; }
 
-        public static Agent find(string id)
+        public static Agent find(string id, List<UserConfiguration.Property> properties = null)
         {
             var query = new UserConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
             var query_settings = query.CreateQuerySettings();
 
             query_settings.SetFilterDefinition(UserConfiguration.Property.Id, id, FilterMatchType.Exact);
             query_settings.SetRightsFilterToView();
-            query_settings.SetPropertiesToRetrieve(new[] { UserConfiguration.Property.Id, UserConfiguration.Property.DisplayName, UserConfiguration.Property.StatusText });
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var results = query.GetConfigurationList();
             query.StopCaching();
@@ -35,9 +35,9 @@ namespace iSelectManager.Models
             return new Agent(results.First());
         }
 
-        public static Agent find(ConfigurationId id)
+        public static Agent find(ConfigurationId id, List<UserConfiguration.Property> properties = null)
         {
-            return find(id.Id);
+            return find(id.Id, properties);
         }
 
         public Agent()
@@ -60,5 +60,8 @@ namespace iSelectManager.Models
 
             //manager.AllocateAgents(new List<string> { id }, out_campaigns, in_campaigns);
         }
+
+        private static List<UserConfiguration.Property> DefaultProperties   = new List<UserConfiguration.Property> { UserConfiguration.Property.StatusText };
+        private static List<UserConfiguration.Property> MandatoryProperties = new List<UserConfiguration.Property> { UserConfiguration.Property.Id, UserConfiguration.Property.DisplayName };
     }
 }

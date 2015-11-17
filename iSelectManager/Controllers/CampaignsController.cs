@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using iSelectManager.Models;
 using ININ.IceLib.Dialer.Supervisor;
+using ININ.IceLib.Configuration.Dialer;
 
 namespace iSelectManager.Controllers
 {
@@ -18,7 +19,7 @@ namespace iSelectManager.Controllers
         // GET: Campaigns
         public ActionResult Index()
         {
-            return View(Campaign.find_all());
+            return View(Campaign.find_all(new List<CampaignConfiguration.Property>()));
         }
 
         // GET: Campaigns/Details/5

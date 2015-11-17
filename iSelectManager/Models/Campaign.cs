@@ -20,18 +20,42 @@ namespace iSelectManager.Models
         public ContactList ContactList { get; set; }
         [Display(Name="Policy sets")]
         public ICollection<PolicySet> PolicySets { get; set; }
-        public ICollection<Agent> ActiveAgents { get; set; }
+        public ICollection<Agent> ActiveAgents
+        {
+            get
+            {
+                if (_active_agents == null)
+                {
+                    var agent_manager = new AgentManager(Application.ICSession);
+
+                    _active_agents = new List<Agent>();
+                    foreach (var agent_id in agent_manager.GetActiveAgentsForCampaign(configuration.ConfigurationId))
+                    {
+                        try
+                        {
+                            _active_agents.Add(Agent.find(agent_id));
+                        }
+                        catch(KeyNotFoundException)
+                        {
+                            //TODO: Trace/Warn?
+                        }
+                    }
+
+                }
+                return _active_agents;
+            }
+        }
 
         private ININ.IceLib.Configuration.Dialer.CampaignConfiguration configuration { get; set; }
 
-        public static ICollection<Campaign> find_all()
+        public static ICollection<Campaign> find_all(IEnumerable<CampaignConfiguration.Property> properties = null)
         {
             var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var query = new CampaignConfigurationList(dialer_configuration.ConfigurationManager);
             var query_settings = query.CreateQuerySettings();
             var campaigns = new List<Campaign>();
 
-            query_settings.SetPropertiesToRetrieveToAll();
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var configurations = query.GetConfigurationList();
             query.StopCaching();
@@ -43,14 +67,14 @@ namespace iSelectManager.Models
             return campaigns;
         }
 
-        public static Campaign find(string id)
+        public static Campaign find(string id, IEnumerable<CampaignConfiguration.Property> properties = null)
         {
             var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var query = new CampaignConfigurationList(dialer_configuration.ConfigurationManager);
             var query_settings = query.CreateQuerySettings();
 
             query_settings.SetFilterDefinition(CampaignConfiguration.Property.Id, id, FilterMatchType.Exact);
-            query_settings.SetPropertiesToRetrieveToAll();
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var configurations = query.GetConfigurationList();
             query.StopCaching();
@@ -60,14 +84,19 @@ namespace iSelectManager.Models
             return new Campaign(configurations.First());
         }
 
-        public static Campaign find_by_name(string name)
+        public static Campaign find(ConfigurationId id, IEnumerable<CampaignConfiguration.Property> properties = null)
+        {
+            return find(id.Id, properties);
+        }
+
+        public static Campaign find_by_name(string name, IEnumerable<CampaignConfiguration.Property> properties = null)
         {
             var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var query = new CampaignConfigurationList(dialer_configuration.ConfigurationManager);
             var query_settings = query.CreateQuerySettings();
 
             query_settings.SetFilterDefinition(CampaignConfiguration.Property.DisplayName, name, FilterMatchType.Exact);
-            query_settings.SetPropertiesToRetrieveToAll();
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var configurations = query.GetConfigurationList();
             query.StopCaching();
@@ -91,21 +120,27 @@ namespace iSelectManager.Models
         {
             id = ic_campaign.ConfigurationId.Id;
             DisplayName = ic_campaign.ConfigurationId.DisplayName;
-            try
+            if (! string.IsNullOrEmpty(ic_campaign.AcdWorkgroup.Value.Id))
             {
-                AcdWorkgroup = Workgroup.find(ic_campaign.AcdWorkgroup.Value.Id);
+                try
+                {
+                    AcdWorkgroup = Workgroup.find(ic_campaign.AcdWorkgroup.Value.Id);
+                }
+                catch(KeyNotFoundException)
+                {
+                    //TODO: Trace/Warn?
+                }
             }
-            catch(KeyNotFoundException)
+            if (! string.IsNullOrEmpty(ic_campaign.ContactList.Value.Id))
             {
-                //TODO: Trace/Warn?
-            }
-            try
-            {
-                ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
-            }
-            catch(KeyNotFoundException)
-            {
-                //TODO: Trace/Warn?
+                try
+                {
+                    ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
+                }
+                catch(KeyNotFoundException)
+                {
+                    //TODO: Trace/Warn?
+                }
             }
 
             PolicySets = new List<PolicySet>();
@@ -116,21 +151,6 @@ namespace iSelectManager.Models
                     PolicySets.Add(PolicySet.find(ic_policyset.Id));
                 }
                 catch (KeyNotFoundException)
-                {
-                    //TODO: Trace/Warn?
-                }
-            }
-
-            var agent_manager = new AgentManager(Application.ICSession);
-
-            ActiveAgents = new List<Agent>();
-            foreach (var agent_id in agent_manager.GetActiveAgentsForCampaign(ic_campaign.ConfigurationId))
-            {
-                try
-                {
-                    ActiveAgents.Add(Agent.find(agent_id));
-                }
-                catch(KeyNotFoundException)
                 {
                     //TODO: Trace/Warn?
                 }
@@ -161,7 +181,7 @@ namespace iSelectManager.Models
             configuration.Commit();
         }
 
-        internal void activate_agents(IEnumerable<string> agent_ids)
+        public void activate_agents(IEnumerable<string> agent_ids)
         {
             if (agent_ids.Count() == 0) return;
 
@@ -180,5 +200,10 @@ namespace iSelectManager.Models
 
             agent_manager.AllocateAgents(logon, empty_ids, campaign_ids);
         }
+
+        private static List<CampaignConfiguration.Property> DefaultProperties   = new List<CampaignConfiguration.Property> { CampaignConfiguration.Property.AcdWorkgroup, CampaignConfiguration.Property.ContactList, CampaignConfiguration.Property.PolicySets };
+        private static List<CampaignConfiguration.Property> MandatoryProperties = new List<CampaignConfiguration.Property> { CampaignConfiguration.Property.Id, CampaignConfiguration.Property.DisplayName };
+
+        private List<Agent> _active_agents = null;
     }
 }

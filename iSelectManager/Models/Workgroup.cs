@@ -17,14 +17,14 @@ namespace iSelectManager.Models
 
         private WorkgroupConfiguration configuration { get; set; }
 
-        public static Workgroup find(string id)
+        public static Workgroup find(string id, IEnumerable<WorkgroupConfiguration.Property> properties = null)
         {
             var query = new WorkgroupConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
             var query_settings = query.CreateQuerySettings();
 
             query_settings.SetFilterDefinition(WorkgroupConfiguration.Property.Id, id, FilterMatchType.Exact);
             query_settings.SetRightsFilterToView();
-            query_settings.SetPropertiesToRetrieve(new[] { WorkgroupConfiguration.Property.Id, WorkgroupConfiguration.Property.DisplayName, WorkgroupConfiguration.Property.Members });
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var results = query.GetConfigurationList();
             query.StopCaching();
@@ -34,14 +34,19 @@ namespace iSelectManager.Models
             return new Workgroup(results.First());
         }
 
-        public static Workgroup find_by_name(string name)
+        public static Workgroup find(ConfigurationId id, IEnumerable<WorkgroupConfiguration.Property> properties = null)
+        {
+            return find(id.Id, properties);
+        }
+
+        public static Workgroup find_by_name(string name, IEnumerable<WorkgroupConfiguration.Property> properties = null)
         {
             var query = new WorkgroupConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
             var query_settings = query.CreateQuerySettings();
 
             query_settings.SetFilterDefinition(WorkgroupConfiguration.Property.DisplayName, name, FilterMatchType.Exact);
             query_settings.SetRightsFilterToView();
-            query_settings.SetPropertiesToRetrieve(new[] { WorkgroupConfiguration.Property.Id, WorkgroupConfiguration.Property.DisplayName, WorkgroupConfiguration.Property.Members });
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var results = query.GetConfigurationList();
             query.StopCaching();
@@ -63,7 +68,6 @@ namespace iSelectManager.Models
         {
             id = ic_configuration.ConfigurationId.Id;
             DisplayName = ic_configuration.ConfigurationId.DisplayName;
-
             Agents = new List<Agent>();
             foreach(var ic_member in ic_configuration.Members.Value)
             {
@@ -77,5 +81,8 @@ namespace iSelectManager.Models
                 }
             }
         }
+
+        private static List<WorkgroupConfiguration.Property> DefaultProperties   = new List<WorkgroupConfiguration.Property> { WorkgroupConfiguration.Property.Members };
+        private static List<WorkgroupConfiguration.Property> MandatoryProperties = new List<WorkgroupConfiguration.Property> { WorkgroupConfiguration.Property.Id, WorkgroupConfiguration.Property.DisplayName };
     }
 }

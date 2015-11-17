@@ -19,14 +19,14 @@ namespace iSelectManager.Models
 
         private ININ.IceLib.Configuration.Dialer.ContactListConfiguration configuration { get; set; }
 
-        public static ICollection<ContactList> find_all()
+        public static ICollection<ContactList> find_all(IEnumerable<ContactListConfiguration.Property> properties = null)
         {
             var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var query = new ContactListConfigurationList(dialer_configuration.ConfigurationManager);
             var query_settings = query.CreateQuerySettings();
             var contactlists = new List<ContactList>();
 
-            query_settings.SetPropertiesToRetrieveToAll();
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var configurations = query.GetConfigurationList();
             query.StopCaching();
@@ -38,14 +38,14 @@ namespace iSelectManager.Models
             return contactlists;
         }
 
-        public static ContactList find(string id)
+        public static ContactList find(string id, IEnumerable<ContactListConfiguration.Property> properties = null)
         {
             var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var query = new ContactListConfigurationList(dialer_configuration.ConfigurationManager);
             var query_settings = query.CreateQuerySettings();
 
             query_settings.SetFilterDefinition(ContactListConfiguration.Property.Id, id, FilterMatchType.Exact);
-            query_settings.SetPropertiesToRetrieveToAll();
+            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
             query.StartCaching(query_settings);
             var configurations = query.GetConfigurationList();
             query.StopCaching();
@@ -53,6 +53,11 @@ namespace iSelectManager.Models
             if (configurations.Count() == 0) throw new KeyNotFoundException(id);
             if (configurations.Count()  > 1) throw new IndexOutOfRangeException(id);
             return new ContactList(configurations.First());
+        }
+
+        public static ContactList find(ConfigurationId id, IEnumerable<ContactListConfiguration.Property> properties = null)
+        {
+            return find(id.Id, properties);
         }
 
         public ContactList()
@@ -130,5 +135,8 @@ namespace iSelectManager.Models
         {
             return UpdateContacts(search_column, key, ContactListConfiguration.Status, new_status);
         }
+
+        private static List<ContactListConfiguration.Property> DefaultProperties   = new List<ContactListConfiguration.Property>();
+        private static List<ContactListConfiguration.Property> MandatoryProperties = new List<ContactListConfiguration.Property> { ContactListConfiguration.Property.Id, ContactListConfiguration.Property.DisplayName };
     }
 }
