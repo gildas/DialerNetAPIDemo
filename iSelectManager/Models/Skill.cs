@@ -20,6 +20,12 @@ namespace iSelectManager.Models
         [Display(Name = "Skill")]
         public string DisplayName { get; set; }
 
+        [Display(Name = "User Assignments")]
+        public IEnumerable<SkillSettings> UserAssignments      { get { return configuration.UserAssignments.Value;  } }
+
+        [Display(Name = "Workgroup Assignments")]
+        public IEnumerable<SkillSettings> WorkgroupAssignments { get { return configuration.WorkgroupAssignments.Value;  } }
+
         private SkillConfiguration configuration { get; set; }
 
         public static ICollection<Skill> find_all()
