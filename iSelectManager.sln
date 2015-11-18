@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSelectManager", "iSelectManager\iSelectManager.csproj", "{73986F1E-1769-45B4-B52E-DC9D333EC69B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSelectManager.Tests", "..\..\..\Visual Studio 2013\Projects\iSelectManager\iSelectManager.Tests\iSelectManager.Tests.csproj", "{B1B13FD4-0844-4883-8D40-E916520087F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iSelectManager.Tests", "iSelectManager.Tests\iSelectManager.Tests.csproj", "{B1B13FD4-0844-4883-8D40-E916520087F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
