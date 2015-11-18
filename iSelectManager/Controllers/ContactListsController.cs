@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using iSelectManager.Models;
+using System.Web.Configuration;
 
 namespace iSelectManager.Controllers
 {
@@ -138,7 +139,7 @@ namespace iSelectManager.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ContactList contactList = db.ContactLists.Find(id);
+            ContactList contactList = ContactList.find(id);
             if (contactList == null)
             {
                 return HttpNotFound();
@@ -151,15 +152,34 @@ namespace iSelectManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,display_name")] ContactList contactList)
+        public ActionResult Edit([Bind(Include = "id,display_name")] ContactList model, HttpPostedFileBase upload)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(contactList).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                //db.Entry(contactList).State = EntityState.Modified;
+                //db.SaveChanges();
+                ContactList contactList = ContactList.find(model.id);
+                int uploaded_records = 0;
+
+                if (upload != null && upload.ContentLength > 0)
+                {
+                    var filename = System.IO.Path.GetFileName(upload.FileName);
+                    var rootpath = WebConfigurationManager.AppSettings["UploadPath"] ?? Environment.GetEnvironmentVariable("TEMP") ?? @"C:\Windows\Temp";
+                    if (rootpath.StartsWith("/")) rootpath = Server.MapPath(rootpath);
+                    var filepath = System.IO.Path.GetFullPath(System.IO.Path.Combine(rootpath, filename));
+
+                    using (var reader = new System.IO.BinaryReader(upload.InputStream))
+                    {
+                        using (var writer = System.IO.File.Create(filepath))
+                        {
+                            writer.Write(reader.ReadBytes(upload.ContentLength), 0, upload.ContentLength);
+                        }
+                    }
+                    uploaded_records = contactList.upload_records(filepath);
+                }
+                return RedirectToAction("Details", new { id = model.id, records = uploaded_records });
             }
-            return View(contactList);
+            return View(model);
         }
 
         // GET: ContactLists/Delete/5

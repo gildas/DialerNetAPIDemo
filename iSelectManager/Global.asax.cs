@@ -128,7 +128,10 @@ namespace iSelectManager
                 query_settings.SetPropertiesToRetrieve(new[] { 
                     ContactListConfiguration.Property.Id,
                     ContactListConfiguration.Property.DisplayName,
-                    ContactListConfiguration.Property.RevisionLevel
+                    ContactListConfiguration.Property.RevisionLevel,
+                    ContactListConfiguration.Property.Connection,
+                    ContactListConfiguration.Property.TableName,
+                    ContactListConfiguration.Property.ContactColumns
                 });
                 configurations.StartCaching(query_settings);
                 //configurations.StartCachingAsync(query_settings, OnCampaignCached, this);

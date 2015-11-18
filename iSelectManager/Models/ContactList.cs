@@ -117,5 +117,34 @@ namespace iSelectManager.Models
         {
             return UpdateContacts(search_column, key, ContactListConfiguration.Status, new_status);
         }
+
+        public int upload_records(string filename)
+        {
+            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
+            var data    = new CSVDataSet(filename);
+            var fields  = data.Fields;
+            var columns = configuration.GetColumns();
+            var mapping = new Dictionary<DBColumn, DBColumn>();
+
+            foreach(var field in fields)
+            {
+                var column = fields.First(item => string.Compare(item.Name, field.Name) == 0);
+
+                if (column != null)
+                {
+                    mapping.Add(field, column);
+                }
+            }
+            if (mapping.Keys.Count <= 0) throw new ArgumentException(string.Format("No mapping available between Contact List {0} and CSV filename {1}", DisplayName, filename), filename);
+
+            return configuration.BulkImport(dialer_configuration.GetHttpRequestKey(configuration.ConfigurationId), data, mapping);
+        }
+
+        public int upload_records(string server, string database, string table, string user, string password)
+        {
+            var data = new SQLServerDataSet(server, database, table, user, password);
+
+            return 0;
+        }
     }
 }
