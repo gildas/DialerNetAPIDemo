@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 
 namespace iSelectManager.Models
@@ -19,45 +20,26 @@ namespace iSelectManager.Models
 
         private ININ.IceLib.Configuration.Dialer.ContactListConfiguration configuration { get; set; }
 
-        public static ICollection<ContactList> find_all(IEnumerable<ContactListConfiguration.Property> properties = null)
+        public static ICollection<ContactList> find_all()
         {
-            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
-            var query = new ContactListConfigurationList(dialer_configuration.ConfigurationManager);
-            var query_settings = query.CreateQuerySettings();
-            var contactlists = new List<ContactList>();
+            return Application.ContactListConfigurations.Select(item => new ContactList(item)).ToList();
+        }
 
-            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
-            query.StartCaching(query_settings);
-            var configurations = query.GetConfigurationList();
-            query.StopCaching();
-
-            foreach (var configuration in configurations)
+        public static ContactList find(string id)
+        {
+            try
             {
-                contactlists.Add(new ContactList(configuration));
+                return new ContactList(Application.ContactListConfigurations.First(item => item.ConfigurationId.Id == id));
             }
-            return contactlists;
+            catch(InvalidOperationException)
+            {
+                throw new KeyNotFoundException(string.Format("Unable to find a {0} with key {1}", MethodInfo.GetCurrentMethod().DeclaringType.Name, id));
+            }
         }
 
-        public static ContactList find(string id, IEnumerable<ContactListConfiguration.Property> properties = null)
+        public static ContactList find(ConfigurationId id)
         {
-            var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
-            var query = new ContactListConfigurationList(dialer_configuration.ConfigurationManager);
-            var query_settings = query.CreateQuerySettings();
-
-            query_settings.SetFilterDefinition(ContactListConfiguration.Property.Id, id, FilterMatchType.Exact);
-            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
-            query.StartCaching(query_settings);
-            var configurations = query.GetConfigurationList();
-            query.StopCaching();
-
-            if (configurations.Count() == 0) throw new KeyNotFoundException(id);
-            if (configurations.Count()  > 1) throw new IndexOutOfRangeException(id);
-            return new ContactList(configurations.First());
-        }
-
-        public static ContactList find(ConfigurationId id, IEnumerable<ContactListConfiguration.Property> properties = null)
-        {
-            return find(id.Id, properties);
+            return find(id.Id);
         }
 
         public ContactList()
@@ -135,8 +117,5 @@ namespace iSelectManager.Models
         {
             return UpdateContacts(search_column, key, ContactListConfiguration.Status, new_status);
         }
-
-        private static List<ContactListConfiguration.Property> DefaultProperties   = new List<ContactListConfiguration.Property>();
-        private static List<ContactListConfiguration.Property> MandatoryProperties = new List<ContactListConfiguration.Property> { ContactListConfiguration.Property.Id, ContactListConfiguration.Property.DisplayName };
     }
 }

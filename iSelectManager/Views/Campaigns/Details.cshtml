@@ -1,4 +1,4 @@
-﻿@model iSelectManager.Models.Campaign
+﻿@model iSelectManager.Models.CampaignViewModel
 
 @{
     ViewBag.Title = "Details";
@@ -10,24 +10,41 @@
     <h4>Campaign</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>@Html.DisplayNameFor(model => model.DisplayName)</dt>
-        <dd>@Html.DisplayFor(model => model.DisplayName)</dd>
+        <dt>@Html.DisplayNameFor(model => model.Campaign.DisplayName)</dt>
+        <dd>@Html.DisplayFor(model => model.Campaign.DisplayName)</dd>
 
-        <dt>Contact List</dt>
-        <dd>@Html.DisplayFor(model => model.ContactList.DisplayName)</dd>
+        <dt>@Html.DisplayNameFor(model => model.Campaign.ContactList.DisplayName)</dt>
+        <dd>@Html.DisplayFor(model => model.Campaign.ContactList.DisplayName)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.Campaign.AcdWorkgroup.DisplayName)</dt>
+        <dd>@Html.DisplayFor(model => model.Campaign.AcdWorkgroup.DisplayName)</dd>
+
+        @if (Model.SelectedPolicySets.Count() > 0)
+        {
+            <dt>@Html.DisplayNameFor(model => model.SelectedPolicySets)</dt>
+            <dd>
+                <table>
+                    @foreach(var policyset in Model.PolicySets)
+                    {
+                        <tr><td>@policyset.Text</td></tr>
+                    }
+                </table>
+            </dd>
+        }
+
+        @if (Model.ActiveAgents.Count() > 0)
+        {
+            <dt>@Html.DisplayNameFor(model => model.ActiveAgents)</dt>
+            <dd>
+                <table>
+                    @foreach(var agent in Model.ActiveAgents)
+                    {
+                        <tr><td>@agent</td></tr>
+                    }
+                </table>
+            </dd>
+        }
     </dl>
-<table class="table">
-    <tr>
-        <th>@Html.DisplayNameFor(model => model.DisplayName)</th>
-        <th></th>
-    </tr>
-@foreach (var item in Model.Agents()) {
-    <tr>
-        <td>@Html.DisplayFor(modelItem => item.DisplayName)</td>
-        <td>@Html.ActionLink("Logoff", "Logoff", new { id=item.id, campaign=Model })</td>
-    </tr>
-}
-</table>
 </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |

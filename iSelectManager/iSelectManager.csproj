@@ -198,8 +198,7 @@
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\Agent.cs" />
     <Compile Include="Models\Campaign.cs" />
-    <Compile Include="Models\CampaignActiveAgentsViewModel.cs" />
-    <Compile Include="Models\CampaignPolicySetsViewModel.cs" />
+    <Compile Include="Models\CampaignViewModel.cs" />
     <Compile Include="Models\Contact.cs" />
     <Compile Include="Models\ContactList.cs" />
     <Compile Include="Models\DialerContext.cs" />

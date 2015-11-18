@@ -7,11 +7,14 @@ using System.Web.Mvc;
 
 namespace iSelectManager.Models
 {
-    public class CampaignActiveAgentsViewModel
+    public class CampaignViewModel
     {
         public string id { get; set; }
         public string DisplayName { get; set; }
         public Campaign Campaign { get; set; }
+        [Display(Name = "Policy Set")]
+        public IEnumerable<string> SelectedPolicySets { get; set; }
+        public IEnumerable<SelectListItem> PolicySets { get; set; }
         [Display(Name = "Active Agents")]
         public IEnumerable<string> ActiveAgents { get; set; }
         public IEnumerable<SelectListItem> Agents { get; set; }

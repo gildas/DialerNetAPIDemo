@@ -54,13 +54,6 @@ namespace iSelectManager.Models
             configuration = ic_configuration;
         }
 
-        public void logon(Campaign campaign)
-        {
-            var manager = new AgentManager(Application.ICSession);
-
-            //manager.AllocateAgents(new List<string> { id }, out_campaigns, in_campaigns);
-        }
-
         private static List<UserConfiguration.Property> DefaultProperties   = new List<UserConfiguration.Property> { UserConfiguration.Property.StatusText };
         private static List<UserConfiguration.Property> MandatoryProperties = new List<UserConfiguration.Property> { UserConfiguration.Property.Id, UserConfiguration.Property.DisplayName };
     }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 
 namespace iSelectManager.Models
@@ -17,43 +18,38 @@ namespace iSelectManager.Models
 
         private WorkgroupConfiguration configuration { get; set; }
 
-        public static Workgroup find(string id, IEnumerable<WorkgroupConfiguration.Property> properties = null)
+        public static ICollection<Workgroup> find_all(string id)
         {
-            var query = new WorkgroupConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
-            var query_settings = query.CreateQuerySettings();
-
-            query_settings.SetFilterDefinition(WorkgroupConfiguration.Property.Id, id, FilterMatchType.Exact);
-            query_settings.SetRightsFilterToView();
-            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
-            query.StartCaching(query_settings);
-            var results = query.GetConfigurationList();
-            query.StopCaching();
-
-            if (results.Count() == 0) throw new KeyNotFoundException(id);
-            if (results.Count()  > 1) throw new IndexOutOfRangeException(id);
-            return new Workgroup(results.First());
+            return Application.WorkgroupConfigurations.Select(item => new Workgroup(item)).ToList();
         }
 
-        public static Workgroup find(ConfigurationId id, IEnumerable<WorkgroupConfiguration.Property> properties = null)
+        public static Workgroup find(string id)
         {
-            return find(id.Id, properties);
+            try
+            {
+                return new Workgroup(Application.WorkgroupConfigurations.First(item => item.ConfigurationId.Id == id));
+            }
+            catch(InvalidOperationException)
+            {
+                throw new KeyNotFoundException(string.Format("Unable to find a {0} with key {1}", MethodInfo.GetCurrentMethod().DeclaringType.Name, id));
+            }
         }
 
-        public static Workgroup find_by_name(string name, IEnumerable<WorkgroupConfiguration.Property> properties = null)
+        public static Workgroup find(ConfigurationId id)
         {
-            var query = new WorkgroupConfigurationList(ConfigurationManager.GetInstance(Application.ICSession));
-            var query_settings = query.CreateQuerySettings();
+            return find(id.Id);
+        }
 
-            query_settings.SetFilterDefinition(WorkgroupConfiguration.Property.DisplayName, name, FilterMatchType.Exact);
-            query_settings.SetRightsFilterToView();
-            query_settings.SetPropertiesToRetrieve((properties ?? DefaultProperties).Union(MandatoryProperties));
-            query.StartCaching(query_settings);
-            var results = query.GetConfigurationList();
-            query.StopCaching();
-
-            if (results.Count() == 0) throw new KeyNotFoundException(name);
-            if (results.Count()  > 1) throw new IndexOutOfRangeException(name);
-            return new Workgroup(results.First());
+        public static Workgroup find_by_name(string name)
+        {
+            try
+            {
+                return new Workgroup(Application.WorkgroupConfigurations.First(item => item.ConfigurationId.DisplayName == name));
+            }
+            catch(InvalidOperationException)
+            {
+                throw new KeyNotFoundException(string.Format("Unable to find a {0} with key {1}", MethodInfo.GetCurrentMethod().DeclaringType.Name, name));
+            }
         }
 
         public Workgroup()
@@ -81,8 +77,5 @@ namespace iSelectManager.Models
                 }
             }
         }
-
-        private static List<WorkgroupConfiguration.Property> DefaultProperties   = new List<WorkgroupConfiguration.Property> { WorkgroupConfiguration.Property.Members };
-        private static List<WorkgroupConfiguration.Property> MandatoryProperties = new List<WorkgroupConfiguration.Property> { WorkgroupConfiguration.Property.Id, WorkgroupConfiguration.Property.DisplayName };
     }
 }
