@@ -205,6 +205,8 @@
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\PolicySet.cs" />
+    <Compile Include="Models\Skill.cs" />
+    <Compile Include="Models\SkillSet.cs" />
     <Compile Include="Models\Workgroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />

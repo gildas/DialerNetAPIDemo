@@ -22,6 +22,10 @@ namespace iSelectManager.Models
         public ContactList ContactList { get; set; }
         [Display(Name="Policy sets")]
         public ICollection<PolicySet> PolicySets { get; set; }
+
+        [Display(Name="Skill sets")]
+        public ICollection<SkillSet> SkillSets { get; set; }
+
         public ICollection<Agent> ActiveAgents
         {
             get
@@ -133,6 +137,19 @@ namespace iSelectManager.Models
                     //TODO: Trace/Warn?
                 }
             }
+
+            SkillSets = new List<SkillSet>();
+            foreach (var ic_skillset in ic_campaign.SkillSets.Value)
+            {
+                try
+                {
+                    SkillSets.Add(SkillSet.find(ic_skillset.Id));
+                }
+                catch (KeyNotFoundException)
+                {
+                    //TODO: Trace/Warn?
+                }
+            }
             configuration = ic_campaign;
         }
 
@@ -164,6 +181,25 @@ namespace iSelectManager.Models
 
             agent_manager.AllocateAgents(logon, empty_ids, campaign_ids);
         }
+
+        public void add_skillset(string skillset_id)
+        {
+            add_skillset(SkillSet.find(id).ConfigurationId);
+        }
+
+        public void add_skillset(SkillSet skillset)
+        {
+            add_skillset(skillset.ConfigurationId);
+        }
+
+        public void add_skillset(ConfigurationId skillset_id)
+        {
+            if (configuration.SkillSets.Value.Any(item => item.Id == skillset_id.Id)) return;
+            configuration.PrepareForEdit();
+            configuration.SkillSets.Value.Add(skillset_id);
+            configuration.Commit();
+        }
+
         private List<Agent> _active_agents = null;
     }
 }

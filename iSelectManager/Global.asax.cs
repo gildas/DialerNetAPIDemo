@@ -22,7 +22,6 @@ namespace iSelectManager
         public static ReadOnlyCollection<WorkgroupConfiguration> WorkgroupConfigurations { get; private set; }
         public static ReadOnlyCollection<ContactListConfiguration> ContactListConfigurations { get; private set; }
         public static ReadOnlyCollection<PolicySetConfiguration> PolicySetConfigurations { get; private set; }
-        public static ReadOnlyCollection<SkillConfiguration> SkillConfigurations { get; private set; }
 
         protected void Application_Start()
         {
@@ -42,11 +41,15 @@ namespace iSelectManager
                 session_settings.ApplicationName = "iSelectManager";
                 ICSession.Connect(session_settings, host_settings, auth_settings, new StationlessSettings());
 
+                Models.Skill skill = Models.Skill.find_or_create("English");
+                Models.SkillSet skillset = Models.SkillSet.find_or_create(skill.DisplayName, "SKILL0", 76);
+
+                skillset.add_skill(skill, "MYVALUE_FOR_SKILL0", 12);
+
                 InitializeCampaigns(ICSession);
                 InitializeWorkgroups(ICSession);
                 InitializeContactLists(ICSession);
                 InitializePolicySets(ICSession);
-                InitializeSkills(ICSession);
             }
             catch (Exception e)
             {
@@ -164,29 +167,6 @@ namespace iSelectManager
             catch(Exception e)
             {
                 HttpContext.Current.Trace.Warn("Dialer", "Unable to retrieve campaigns", e);
-            }
-        }
-
-        private void InitializeSkills(ININ.IceLib.Connection.Session session)
-        {
-            try
-            {
-                var configurations = new SkillConfigurationList(ConfigurationManager.GetInstance(session));
-                var query_settings = configurations.CreateQuerySettings();
-
-                query_settings.SetPropertiesToRetrieve(new[] { 
-                    SkillConfiguration.Property.Id,
-                    SkillConfiguration.Property.DisplayName,
-                    SkillConfiguration.Property.UserAssignments,
-                    SkillConfiguration.Property.WorkgroupAssignments,
-                });
-                configurations.StartCaching(query_settings);
-                //configurations.StartCachingAsync(query_settings, OnCampaignCached, this);
-                SkillConfigurations = configurations.GetConfigurationList();
-            }
-            catch(Exception e)
-            {
-                HttpContext.Current.Trace.Warn("Dialer", "Unable to retrieve skills", e);
             }
         }
 
