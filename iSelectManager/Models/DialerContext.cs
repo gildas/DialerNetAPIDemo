@@ -32,6 +32,8 @@ namespace iSelectManager.Models
         public System.Data.Entity.DbSet<iSelectManager.Models.CampaignViewModel> CampaignViewModels { get; set; }
 
         public System.Data.Entity.DbSet<iSelectManager.Models.Skill> Skills { get; set; }
+
+        public System.Data.Entity.DbSet<iSelectManager.Models.SkillSet> SkillSets { get; set; }
     
     }
 }

@@ -31,6 +31,8 @@ namespace iSelectManager.Models
             }
         }
 
+        public IEnumerable<DialerSkill> Skills { get { return configuration.Skills.Value;  } }
+
         public ConfigurationId ConfigurationId
         {
             get
@@ -42,7 +44,7 @@ namespace iSelectManager.Models
 
         private SkillSetConfiguration configuration { get; set; }
 
-        public static ICollection<SkillSet> find_all(string id)
+        public static ICollection<SkillSet> find_all()
         {
             return SkillSetConfigurations.Select(item => new SkillSet(item)).ToList();
         }
