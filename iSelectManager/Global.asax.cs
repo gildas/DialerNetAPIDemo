@@ -41,11 +41,6 @@ namespace iSelectManager
                 session_settings.ApplicationName = "iSelectManager";
                 ICSession.Connect(session_settings, host_settings, auth_settings, new StationlessSettings());
 
-                Models.Skill skill = Models.Skill.find_or_create("English");
-                Models.SkillSet skillset = Models.SkillSet.find_or_create(skill.DisplayName, "SKILL0", 76);
-
-                skillset.add_skill(skill, "MYVALUE_FOR_SKILL0", 12);
-
                 InitializeCampaigns(ICSession);
                 InitializeWorkgroups(ICSession);
                 InitializeContactLists(ICSession);
