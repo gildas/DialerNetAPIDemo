@@ -24,9 +24,9 @@
             <dt>@Html.DisplayNameFor(model => model.SelectedPolicySets)</dt>
             <dd>
                 <table>
-                    @foreach(var policyset in Model.PolicySets)
+                    @foreach(var policyset in Model.SelectedPolicySets)
                     {
-                        <tr><td>@policyset.Text</td></tr>
+                        <tr><td>@policyset</td></tr>
                     }
                 </table>
             </dd>
