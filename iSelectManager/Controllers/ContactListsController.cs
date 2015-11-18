@@ -177,7 +177,7 @@ namespace iSelectManager.Controllers
                     }
                     uploaded_records = contactList.upload_records(filepath);
                 }
-                return RedirectToAction("Details", new { id = model.id, records = uploaded_records });
+                return RedirectToAction("Details", new { id = model.id, affected_records = uploaded_records });
             }
             return View(model);
         }
