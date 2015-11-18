@@ -1,11 +1,16 @@
-﻿using System;
+﻿using ININ.IceLib.Configuration.DataTypes;
+using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Web;
+using System.Web.Configuration;
 
 namespace iSelectManager
 {
@@ -64,6 +69,115 @@ namespace iSelectManager
         {
             foreach (var item in enumerable) { action(item); }
             return enumerable;
+        }
+
+        public static DataTable LoadCSV(string filepath)
+        {
+            var data = new DataTable();
+
+            using (var parser = new TextFieldParser(filepath))
+            {
+                parser.TextFieldType = FieldType.Delimited;
+                parser.SetDelimiters(",");
+                parser.HasFieldsEnclosedInQuotes = true;
+
+                while (!parser.EndOfData)
+                {
+                    try
+                    {
+                        var fields = parser.ReadFields();
+                        if (data.Columns.Count == 0)
+                        {
+                            foreach (var column_name in fields)
+                            {
+                                DataColumn column = new DataColumn(column_name);
+
+                                column.AllowDBNull = true;
+                                data.Columns.Add(column);
+                            }
+                        }
+                        else
+                        {
+                            data.Rows.Add(fields);
+                        }
+                    }
+                    catch(MalformedLineException)
+                    {
+                        // We will ignore malformed lines
+                    }
+                }
+            }
+            return data;
+        }
+
+        public static IEnumerable<SkillSettings> ParseManySkillSettings(string data, char separator = ',')
+        {
+            var settings = new List<SkillSettings>();
+
+            if (! string.IsNullOrWhiteSpace(data))
+            {
+                data.Split(separator).Where(x => !string.IsNullOrWhiteSpace(x)).ForEach(x => settings.Add(ParseSkillSettings(x)));
+            }
+            return settings;
+        }
+
+        public static SkillSettings ParseSkillSettings(string data, params char[] separators)
+        {
+            var    settings      = data.Split((separators.Count() > 0) ? separators : new[] { '|', ';' });
+            string workgroup_id  = settings[0];
+            int    proficiency   = 1;
+            int    desire_to_use = 1;
+
+            if (settings.Count() > 0) { Int32.TryParse(settings[1], out proficiency  ); }
+            if (settings.Count() > 1) { Int32.TryParse(settings[2], out desire_to_use); }
+            return new SkillSettings(workgroup_id, proficiency, desire_to_use);
+        }
+    }
+
+    public class CSVMapper
+    {
+        public DataTable DataTable { get; set; }
+
+        public int this[string index_name] { get { return _map[index_name];  } }
+
+        public int map(string index_name, params string[] aliases)
+        {
+            for (int i = 0; i < DataTable.Columns.Count; i++)
+            {
+                var column = DataTable.Columns[i];
+
+                if (aliases.Any(x => string.Equals(x, column.ColumnName, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return _map[index_name] = i;
+                }
+            }
+            return -1;
+        }
+
+        private Dictionary<string, int> _map = new Dictionary<string, int>();
+    }
+
+    static public class Uploader
+    {
+        public static string Process(HttpPostedFileBase http_upload)
+        {
+            return Process(http_upload.FileName, http_upload.InputStream, http_upload.ContentLength);
+        }
+
+        public static string Process(string filename, System.IO.Stream stream, int content_length)
+        {
+            var rootpath = WebConfigurationManager.AppSettings["UploadPath"] ?? Environment.GetEnvironmentVariable("TEMP") ?? @"C:\Windows\Temp";
+            if (rootpath.StartsWith("/")) rootpath = HttpContext.Current.Server.MapPath(rootpath);
+            var filepath = Path.GetFullPath(Path.Combine(rootpath, Path.GetFileName(filename)));
+
+            using (var reader = new BinaryReader(stream))
+            {
+                using (var writer = File.Create(filepath))
+                {
+                    writer.Write(reader.ReadBytes(content_length), 0, content_length);
+                }
+            }
+            return filepath;
         }
     }
 }
