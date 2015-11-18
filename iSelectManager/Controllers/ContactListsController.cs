@@ -163,19 +163,7 @@ namespace iSelectManager.Controllers
 
                 if (upload != null && upload.ContentLength > 0)
                 {
-                    var filename = System.IO.Path.GetFileName(upload.FileName);
-                    var rootpath = WebConfigurationManager.AppSettings["UploadPath"] ?? Environment.GetEnvironmentVariable("TEMP") ?? @"C:\Windows\Temp";
-                    if (rootpath.StartsWith("/")) rootpath = Server.MapPath(rootpath);
-                    var filepath = System.IO.Path.GetFullPath(System.IO.Path.Combine(rootpath, filename));
-
-                    using (var reader = new System.IO.BinaryReader(upload.InputStream))
-                    {
-                        using (var writer = System.IO.File.Create(filepath))
-                        {
-                            writer.Write(reader.ReadBytes(upload.ContentLength), 0, upload.ContentLength);
-                        }
-                    }
-                    uploaded_records = contactList.upload_records(filepath);
+                    uploaded_records = contactList.upload_records(Uploader.Process(upload));
                 }
                 return RedirectToAction("Details", new { id = model.id, affected_records = uploaded_records });
             }
