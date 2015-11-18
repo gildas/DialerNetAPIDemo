@@ -30,6 +30,8 @@ namespace iSelectManager.Models
         public System.Data.Entity.DbSet<iSelectManager.Models.Workgroup> Workgroups { get; set; }
 
         public System.Data.Entity.DbSet<iSelectManager.Models.CampaignViewModel> CampaignViewModels { get; set; }
+
+        public System.Data.Entity.DbSet<iSelectManager.Models.Skill> Skills { get; set; }
     
     }
 }
