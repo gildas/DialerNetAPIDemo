@@ -55,7 +55,9 @@
       <HintPath>..\..\lib\Dialer\IC4_2016_R1_P0(x86)\bin\ININ.IceLib.People.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Microsoft.VisualBasic">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
