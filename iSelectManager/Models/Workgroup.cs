@@ -1,7 +1,9 @@
 ﻿using ININ.IceLib.Configuration;
+using ININ.IceLib.Configuration.Dialer;
 using ININ.IceLib.Dialer;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -77,5 +79,35 @@ namespace iSelectManager.Models
                 }
             }
         }
+
+        private static ReadOnlyCollection<WorkgroupConfiguration> WorkgroupConfigurations
+        {
+            get
+            {
+                if (_WorkgroupConfigurations == null)
+                {
+                    try
+                    {
+                        var configurations = new WorkgroupConfigurationList(new DialerConfigurationManager(Application.ICSession).ConfigurationManager);
+                        var query_settings = configurations.CreateQuerySettings();
+
+                        query_settings.SetPropertiesToRetrieve(new[] { 
+                            WorkgroupConfiguration.Property.Id,
+                            WorkgroupConfiguration.Property.DisplayName,
+                            WorkgroupConfiguration.Property.Members
+                        });
+                        configurations.StartCaching(query_settings);
+                        _WorkgroupConfigurations = configurations.GetConfigurationList();
+                    }
+                    catch(Exception e)
+                    {
+                        HttpContext.Current.Trace.Warn("Dialer", "Unable to retrieve workgroups", e);
+                        _WorkgroupConfigurations = new List<WorkgroupConfiguration>().AsReadOnly();
+                    }
+                }
+                return _WorkgroupConfigurations;
+            }
+        }
+        private static ReadOnlyCollection<WorkgroupConfiguration> _WorkgroupConfigurations = null;
     }
 }
