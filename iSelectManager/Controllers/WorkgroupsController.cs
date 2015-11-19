@@ -23,15 +23,9 @@ namespace iSelectManager.Controllers
         // GET: Workgroups/Details/5
         public ActionResult Details(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Workgroup workgroup = db.Workgroups.Find(id);
-            if (workgroup == null)
-            {
-                return HttpNotFound();
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            Workgroup workgroup = Workgroup.find(id);
+            if (workgroup == null) return HttpNotFound();
             return View(workgroup);
         }
 
@@ -61,15 +55,9 @@ namespace iSelectManager.Controllers
         // GET: Workgroups/Edit/5
         public ActionResult Edit(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Workgroup workgroup = db.Workgroups.Find(id);
-            if (workgroup == null)
-            {
-                return HttpNotFound();
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            Workgroup workgroup = Workgroup.find(id);
+            if (workgroup == null) return HttpNotFound();
             return View(workgroup);
         }
 
@@ -92,15 +80,9 @@ namespace iSelectManager.Controllers
         // GET: Workgroups/Delete/5
         public ActionResult Delete(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Workgroup workgroup = db.Workgroups.Find(id);
-            if (workgroup == null)
-            {
-                return HttpNotFound();
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            Workgroup workgroup = Workgroup.find(id, false);
+            if (workgroup == null) return HttpNotFound();
             return View(workgroup);
         }
 
