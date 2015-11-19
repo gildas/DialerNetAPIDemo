@@ -54,16 +54,16 @@ namespace iSelectManager.Models
 
         private CampaignConfiguration configuration { get; set; }
 
-        public static ICollection<Campaign> find_all(IEnumerable<CampaignConfiguration.Property> properties = null)
+        public static ICollection<Campaign> find_all(bool resolve_members = true)
         {
-            return Application.CampaignConfigurations.Select(item => new Campaign(item)).ToList();
+            return Application.CampaignConfigurations.Select(item => new Campaign(item, resolve_members)).ToList();
         }
 
-        public static Campaign find(string id)
+        public static Campaign find(string id, bool resolve_members = true)
         {
             try
             {
-                return new Campaign(Application.CampaignConfigurations.First(item => item.ConfigurationId.Id == id));
+                return new Campaign(Application.CampaignConfigurations.First(item => item.ConfigurationId.Id == id), resolve_members);
             }
             catch(InvalidOperationException)
             {
@@ -71,16 +71,16 @@ namespace iSelectManager.Models
             }
         }
 
-        public static Campaign find(ConfigurationId id)
+        public static Campaign find(ConfigurationId id, bool resolve_members = true)
         {
-            return find(id.Id);
+            return find(id.Id, resolve_members);
         }
 
-        public static Campaign find_by_name(string name)
+        public static Campaign find_by_name(string name, bool resolve_members = true)
         {
             try
             {
-                return new Campaign(Application.CampaignConfigurations.First(item => item.ConfigurationId.DisplayName == name));
+                return new Campaign(Application.CampaignConfigurations.First(item => item.ConfigurationId.DisplayName == name), resolve_members);
             }
             catch(InvalidOperationException)
             {
@@ -98,56 +98,59 @@ namespace iSelectManager.Models
             configuration = null;
         }
 
-        public Campaign(CampaignConfiguration ic_campaign)
+        public Campaign(CampaignConfiguration ic_campaign, bool resolve_members = true)
         {
             id = ic_campaign.ConfigurationId.Id;
             DisplayName = ic_campaign.ConfigurationId.DisplayName;
-            if (! string.IsNullOrEmpty(ic_campaign.AcdWorkgroup.Value.Id))
-            {
-                try
-                {
-                    AcdWorkgroup = Workgroup.find(ic_campaign.AcdWorkgroup.Value.Id);
-                }
-                catch(KeyNotFoundException)
-                {
-                    //TODO: Trace/Warn?
-                }
-            }
-            if (! string.IsNullOrEmpty(ic_campaign.ContactList.Value.Id))
-            {
-                try
-                {
-                    ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
-                }
-                catch(KeyNotFoundException)
-                {
-                    //TODO: Trace/Warn?
-                }
-            }
-
             PolicySets = new List<PolicySet>();
-            foreach (var ic_policyset in ic_campaign.PolicySets.Value)
-            {
-                try
-                {
-                    PolicySets.Add(PolicySet.find(ic_policyset.Id));
-                }
-                catch (KeyNotFoundException)
-                {
-                    //TODO: Trace/Warn?
-                }
-            }
-
             SkillSets = new List<SkillSet>();
-            foreach (var ic_skillset in ic_campaign.SkillSets.Value)
+            if (resolve_members)
             {
-                try
+                if (! string.IsNullOrEmpty(ic_campaign.AcdWorkgroup.Value.Id))
                 {
-                    SkillSets.Add(SkillSet.find(ic_skillset.Id));
+                    try
+                    {
+                        AcdWorkgroup = Workgroup.find(ic_campaign.AcdWorkgroup.Value.Id);
+                    }
+                    catch(KeyNotFoundException)
+                    {
+                        //TODO: Trace/Warn?
+                    }
                 }
-                catch (KeyNotFoundException)
+                if (! string.IsNullOrEmpty(ic_campaign.ContactList.Value.Id))
                 {
-                    //TODO: Trace/Warn?
+                    try
+                    {
+                        ContactList = ContactList.find(ic_campaign.ContactList.Value.Id);
+                    }
+                    catch(KeyNotFoundException)
+                    {
+                        //TODO: Trace/Warn?
+                    }
+                }
+
+                foreach (var ic_policyset in ic_campaign.PolicySets.Value)
+                {
+                    try
+                    {
+                        PolicySets.Add(PolicySet.find(ic_policyset.Id));
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        //TODO: Trace/Warn?
+                    }
+                }
+
+                foreach (var ic_skillset in ic_campaign.SkillSets.Value)
+                {
+                    try
+                    {
+                        SkillSets.Add(SkillSet.find(ic_skillset.Id));
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        //TODO: Trace/Warn?
+                    }
                 }
             }
             configuration = ic_campaign;

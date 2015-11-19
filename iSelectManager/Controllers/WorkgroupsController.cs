@@ -17,7 +17,7 @@ namespace iSelectManager.Controllers
         // GET: Workgroups
         public ActionResult Index()
         {
-            return View(db.Workgroups.ToList());
+            return View(Workgroup.find_all(false));
         }
 
         // GET: Workgroups/Details/5

@@ -20,16 +20,16 @@ namespace iSelectManager.Models
 
         private WorkgroupConfiguration configuration { get; set; }
 
-        public static ICollection<Workgroup> find_all()
+        public static ICollection<Workgroup> find_all(bool resolve_members = true)
         {
-            return Application.WorkgroupConfigurations.Select(item => new Workgroup(item)).ToList();
+            return Application.WorkgroupConfigurations.Select(item => new Workgroup(item, resolve_members)).ToList();
         }
 
-        public static Workgroup find(string id)
+        public static Workgroup find(string id, bool resolve_members = true)
         {
             try
             {
-                return new Workgroup(Application.WorkgroupConfigurations.First(item => item.ConfigurationId.Id == id));
+                return new Workgroup(Application.WorkgroupConfigurations.First(item => item.ConfigurationId.Id == id), resolve_members);
             }
             catch(InvalidOperationException)
             {
@@ -37,16 +37,16 @@ namespace iSelectManager.Models
             }
         }
 
-        public static Workgroup find(ConfigurationId id)
+        public static Workgroup find(ConfigurationId id, bool resolve_members = true)
         {
-            return find(id.Id);
+            return find(id.Id, resolve_members);
         }
 
-        public static Workgroup find_by_name(string name)
+        public static Workgroup find_by_name(string name, bool resolve_members = true)
         {
             try
             {
-                return new Workgroup(Application.WorkgroupConfigurations.First(item => item.ConfigurationId.DisplayName == name));
+                return new Workgroup(Application.WorkgroupConfigurations.First(item => item.ConfigurationId.DisplayName == name), resolve_members);
             }
             catch(InvalidOperationException)
             {
@@ -62,20 +62,23 @@ namespace iSelectManager.Models
             configuration = null;
         }
 
-        public Workgroup(WorkgroupConfiguration ic_configuration)
+        public Workgroup(WorkgroupConfiguration ic_configuration, bool resolve_members = true)
         {
             id = ic_configuration.ConfigurationId.Id;
             DisplayName = ic_configuration.ConfigurationId.DisplayName;
             Agents = new List<Agent>();
-            foreach(var ic_member in ic_configuration.Members.Value)
+            if (resolve_members)
             {
-                try
+                foreach(var ic_member in ic_configuration.Members.Value)
                 {
-                    Agents.Add(Agent.find(ic_member));
-                }
-                catch(KeyNotFoundException)
-                {
-                    //TODO: Trace/Warn?
+                    try
+                    {
+                        Agents.Add(Agent.find(ic_member));
+                    }
+                    catch(KeyNotFoundException)
+                    {
+                        //TODO: Trace/Warn?
+                    }
                 }
             }
         }

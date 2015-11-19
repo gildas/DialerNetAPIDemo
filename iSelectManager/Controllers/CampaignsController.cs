@@ -19,7 +19,7 @@ namespace iSelectManager.Controllers
         // GET: Campaigns
         public ActionResult Index()
         {
-            return View(Campaign.find_all().Select(campaign => new CampaignViewModel { id = campaign.id, DisplayName = campaign.DisplayName }));
+            return View(Campaign.find_all(false).Select(campaign => new CampaignViewModel { id = campaign.id, DisplayName = campaign.DisplayName }));
         }
 
         // GET: Campaigns/Details/5
