@@ -30,7 +30,29 @@ namespace iSelectManager
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+        }
 
+        protected void Application_End()
+        {
+            if (ICSession != null && ICSession.ConnectionState == ConnectionState.Up)
+            {
+                ICSession.Disconnect();
+            }
+        }
+
+        public bool LoggedIn { get; private set; }
+
+        public string Username
+        {
+            get
+            {
+                return LoggedIn ? ICSession.DisplayName : string.Empty;
+            }
+        }
+
+        public void Login()
+        {
+            if (LoggedIn) return;
             try
             {
                 var session_settings = new SessionSettings();
@@ -39,6 +61,8 @@ namespace iSelectManager
 
                 ICSession = new Session();
                 session_settings.ApplicationName = "iSelectManager";
+
+                ICSession.ConnectionStateChanged += ICSession_ConnectionStateChanged;
                 ICSession.Connect(session_settings, host_settings, auth_settings, new StationlessSettings());
 
                 InitializeCampaigns(ICSession);
@@ -52,12 +76,9 @@ namespace iSelectManager
             }
         }
 
-        protected void Application_End()
+        void ICSession_ConnectionStateChanged(object sender, ConnectionStateChangedEventArgs args)
         {
-            if (ICSession != null && ICSession.ConnectionState == ConnectionState.Up)
-            {
-                ICSession.Disconnect();
-            }
+            LoggedIn = args.State == ConnectionState.Up;
         }
 
         private void InitializeCampaigns(ININ.IceLib.Connection.Session session)
