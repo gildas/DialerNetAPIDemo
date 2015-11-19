@@ -9,6 +9,7 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using iSelectManager.Models;
+using System.Net;
 
 namespace iSelectManager.Controllers
 {
@@ -58,7 +59,13 @@ namespace iSelectManager.Controllers
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
-            return View();
+
+            //Task.Factory.StartNew(() =>
+            //    {
+                    (HttpContext.ApplicationInstance as iSelectManager.Application).Login();
+            //    }
+            //);
+            return RedirectToLocal(returnUrl);
         }
 
         //
