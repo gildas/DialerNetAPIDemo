@@ -103,13 +103,12 @@ namespace iSelectManager
                 var configurations = new WorkgroupConfigurationList(new DialerConfigurationManager(session).ConfigurationManager);
                 var query_settings = configurations.CreateQuerySettings();
 
-                query_settings.SetPropertiesToRetrieve(new[] { 
+                query_settings.SetPropertiesToRetrieve(new[] {
                     WorkgroupConfiguration.Property.Id,
                     WorkgroupConfiguration.Property.DisplayName,
                     WorkgroupConfiguration.Property.Members
                 });
                 configurations.StartCaching(query_settings);
-                //configurations.StartCachingAsync(query_settings, OnCampaignCached, this);
                 WorkgroupConfigurations = configurations.GetConfigurationList();
             }
             catch(Exception e)

@@ -18,7 +18,7 @@ namespace iSelectManager.Models
 
         private WorkgroupConfiguration configuration { get; set; }
 
-        public static ICollection<Workgroup> find_all(string id)
+        public static ICollection<Workgroup> find_all()
         {
             return Application.WorkgroupConfigurations.Select(item => new Workgroup(item)).ToList();
         }
