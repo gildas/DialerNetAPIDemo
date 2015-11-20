@@ -15,7 +15,9 @@
     </dl>
 
     <ul>
-        <li>@Html.ActionLink("Upload", "Edit", new { id = Model.id }) data to a Contact list</li>
+        <li>@Html.ActionLink("List", "Index", "Contacts", new { contactlist_id = Model.id }, null) all contacts</li>
+        <li>@Html.ActionLink("Insert", "Create", "Contacts", new { contactlist_id = Model.id }, null) a new contact</li>
+        <li>@Html.ActionLink("Upload", "Edit", new { id = Model.id }) many contacts</li>
         <li>Reset Skill <b>1</b> for all contacts named <b>Dow</b> @Html.ActionLink("Update", "UpdateSkill", new { id = Model.id, name = "Dow", skill_index = 1, skill = "" })</li>
         <li>Update Skill <b>1</b> for all contacts named <b>Dow</b> to <b>English</b> @Html.ActionLink("Update", "UpdateSkill", new { id = Model.id, name = "Dow", skill_index = 1, skill = "English" })</li>
         <li>Assign to Campaign <b>iSelect DEV A</b> all contacts named <b>Dow</b> @Html.ActionLink("Update", "UpdateCampaign", new { id = Model.id, name = "Dow", campaign = "iSelect DEV A" })</li>

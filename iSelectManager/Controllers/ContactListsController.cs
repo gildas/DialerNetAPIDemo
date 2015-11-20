@@ -120,7 +120,7 @@ namespace iSelectManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "id,display_name")] ContactList contactList)
+        public ActionResult Create([Bind(Include = "DisplayName")] ContactList contactList)
         {
             if (ModelState.IsValid)
             {
@@ -135,15 +135,9 @@ namespace iSelectManager.Controllers
         // GET: ContactLists/Edit/5
         public ActionResult Edit(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             ContactList contactList = ContactList.find(id);
-            if (contactList == null)
-            {
-                return HttpNotFound();
-            }
+            if (contactList == null) return HttpNotFound();
             return View(contactList);
         }
 
@@ -152,7 +146,7 @@ namespace iSelectManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "id,display_name")] ContactList model, HttpPostedFileBase upload)
+        public ActionResult Edit([Bind(Include = "id,DisplayName")] ContactList model, HttpPostedFileBase upload)
         {
             if (ModelState.IsValid)
             {
@@ -163,7 +157,7 @@ namespace iSelectManager.Controllers
 
                 if (upload != null && upload.ContentLength > 0)
                 {
-                    uploaded_records = contactList.upload_records(Uploader.Process(upload));
+                    uploaded_records = contactList.upload_contacts(Uploader.Process(upload));
                 }
                 return RedirectToAction("Details", new { id = model.id, affected_records = uploaded_records });
             }
@@ -173,15 +167,9 @@ namespace iSelectManager.Controllers
         // GET: ContactLists/Delete/5
         public ActionResult Delete(string id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             ContactList contactList = db.ContactLists.Find(id);
-            if (contactList == null)
-            {
-                return HttpNotFound();
-            }
+            if (contactList == null) return HttpNotFound();
             return View(contactList);
         }
 

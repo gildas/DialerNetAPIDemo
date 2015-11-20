@@ -1,0 +1,42 @@
+﻿@model IEnumerable<iSelectManager.Models.Contact>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @if (Model.Count() > 0)
+    {
+        // Here we are cheating a bit... What if there is no contact at all?!? We cannot add any!
+        @Html.ActionLink("Create New", "Create", new { contactlist_id = Model.ElementAt(0).ContactList.id })
+    }
+</p>
+<table class="table">
+    <tr>
+        @if (Model.Count() > 0)
+        {
+            foreach(var column in Model.ElementAt(0).Columns)
+            {
+                <th>@column.Key</th>
+            }
+        }
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        @foreach(var column in item.Columns)
+        {
+          <td>@column.Value</td>
+        }
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.id, contactList_id = item.ContactList.id }) |
+            @Html.ActionLink("Details", "Details", new { id=item.id, contactList_id = item.ContactList.id }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.id, contactList_id = item.ContactList.id })
+        </td>
+    </tr>
+}
+
+</table>

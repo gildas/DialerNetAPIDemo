@@ -18,6 +18,8 @@ namespace iSelectManager.Models
         public string DisplayName { get; set; }
         public int AffectedRecords { get; set; }
 
+        public IEnumerable<string> columns { get { return configuration.ColumnMap.Select(item => item.Key); } }
+
         private ININ.IceLib.Configuration.Dialer.ContactListConfiguration configuration { get; set; }
 
         public static ICollection<ContactList> find_all()
@@ -56,16 +58,6 @@ namespace iSelectManager.Models
             DisplayName = ic_contactlist.ConfigurationId.DisplayName;
             configuration = ic_contactlist;
             AffectedRecords = -1;
-        }
-
-        public IEnumerable<string> columns
-        {
-            get
-            {
-                var values = new List<string>();
-
-                return values;
-            }
         }
 
         public int ScheduleCall(string column, string key, Campaign campaign, string agent_id, string site_id, DateTime when)
@@ -118,7 +110,7 @@ namespace iSelectManager.Models
             return UpdateContacts(search_column, key, ContactListConfiguration.Status, new_status);
         }
 
-        public int upload_records(string filename)
+        public int upload_contacts(string filename)
         {
             var dialer_configuration = new DialerConfigurationManager(Application.ICSession);
             var data    = new CSVDataSet(filename);
@@ -140,11 +132,87 @@ namespace iSelectManager.Models
             return configuration.BulkImport(dialer_configuration.GetHttpRequestKey(configuration.ConfigurationId), data, mapping);
         }
 
-        public int upload_records(string server, string database, string table, string user, string password)
+        public int upload_contacts(string server, string database, string table, string user, string password)
         {
             var data = new SQLServerDataSet(server, database, table, user, password);
 
             return 0;
+        }
+
+        public int insert_contact(IDictionary<string, object> columns, string status)
+        {
+            var insert = new InsertCommand(configuration);
+
+            columns.ForEach(item => { insert.Contact[configuration.ColumnMap[item.Key]] = item.Value; });
+            insert.Contact[ContactListConfiguration.Status] = status;
+            ContactListTransaction transaction = new ContactListTransaction();
+            transaction.Add(insert);
+            return configuration.RunTransaction(transaction);
+        }
+
+        public int insert_contact(IDictionary<DBColumn, object> columns, string status)
+        {
+            var insert = new InsertCommand(configuration);
+
+            columns.ForEach(item => { insert.Contact[item.Key] = item.Value; });
+            insert.Contact[ContactListConfiguration.Status] = status;
+            ContactListTransaction transaction = new ContactListTransaction();
+            transaction.Add(insert);
+            return configuration.RunTransaction(transaction);
+        }
+
+        public int update_contact(string key, IDictionary<string, object> columns)
+        {
+            var update = new UpdateCommand(configuration, null);
+            var search_column = configuration.ColumnMap["I3_IDENTITY"];
+
+            update.Where = new BinaryExpression(new ColumnExpression(search_column), new ConstantExpression(key, search_column), BinaryOperationType.Equal);
+            columns.ForEach(item => { update.UpdateData[configuration.ColumnMap[item.Key]] = item.Value; });
+            ContactListTransaction transaction = new ContactListTransaction();
+            transaction.Add(update);
+            return configuration.RunTransaction(transaction);
+        }
+
+        public int update_contact(string key, IDictionary<DBColumn, object> columns)
+        {
+            var update = new UpdateCommand(configuration, null);
+            var search_column = configuration.ColumnMap["I3_IDENTITY"];
+
+            update.Where = new BinaryExpression(new ColumnExpression(search_column), new ConstantExpression(key, search_column), BinaryOperationType.Equal);
+            columns.ForEach(item => { update.UpdateData[item.Key] = item.Value; });
+            ContactListTransaction transaction = new ContactListTransaction();
+            transaction.Add(update);
+            return configuration.RunTransaction(transaction);
+        }
+
+        public int delete_contact(string key)
+        {
+            var delete = new DeleteCommand(configuration, null);
+            var search_column = configuration.ColumnMap["I3_IDENTITY"];
+
+            delete.Where = new BinaryExpression(new ColumnExpression(search_column), new ConstantExpression(key, search_column), BinaryOperationType.Equal);
+            ContactListTransaction transaction = new ContactListTransaction();
+            transaction.Add(delete);
+            return configuration.RunTransaction(transaction);
+        }
+
+        public Collection<Dictionary<string, object>> find_all_contacts()
+        {
+            var contacts = new List<Contact>();
+            var select   = new SelectCommand(configuration);
+            return configuration.GetContacts(Application.DialerConfiguration.GetHttpRequestKey(configuration.ConfigurationId), select);
+        }
+
+        public Dictionary<string, object> find_contact(string contact_id)
+        {
+            var contacts = new List<Contact>();
+            var select   = new SelectCommand(configuration);
+
+            select.Where = new BinaryExpression(new ColumnExpression(configuration.ColumnMap["I3_IDENTITY"]), new ConstantExpression(contact_id, configuration.ColumnMap["I3_IDENTITY"]), BinaryOperationType.Equal);
+            var records = configuration.GetContacts(Application.DialerConfiguration.GetHttpRequestKey(configuration.ConfigurationId), select);
+
+            if (records.Count() == 0) throw new KeyNotFoundException(string.Format("Unable to find a Contact with key {0} in ContactList {1}", contact_id, DisplayName));
+            return records.First();
         }
     }
 }

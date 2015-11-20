@@ -18,6 +18,7 @@ namespace iSelectManager
     public class Application : System.Web.HttpApplication
     {
         public static Session ICSession { get; private set; }
+        public static DialerConfigurationManager DialerConfiguration { get; private set; }
         public static ReadOnlyCollection<CampaignConfiguration>  CampaignConfigurations { get; private set; }
         public static ReadOnlyCollection<WorkgroupConfiguration> WorkgroupConfigurations { get; private set; }
         public static ReadOnlyCollection<ContactListConfiguration> ContactListConfigurations { get; private set; }
@@ -64,6 +65,8 @@ namespace iSelectManager
 
                 ICSession.ConnectionStateChanged += ICSession_ConnectionStateChanged;
                 ICSession.Connect(session_settings, host_settings, auth_settings, new StationlessSettings());
+
+                DialerConfiguration = new DialerConfigurationManager(ICSession);
 
                 InitializeCampaigns(ICSession);
                 InitializeWorkgroups(ICSession);
@@ -184,7 +187,5 @@ namespace iSelectManager
                 HttpContext.Current.Trace.Warn("Dialer", "Unable to retrieve campaigns", e);
             }
         }
-
-        private static DialerConfigurationManager DialerConfiguration { get; set; }
     }
 }
