@@ -19,6 +19,7 @@ tmp/
 *.suo
 *.user
 *.sln.docstates
+App_Data/
 x64/
 x86/
 build/
@@ -89,6 +90,7 @@ DocProject/Help/html
 publish
 
 # Publish Web Output
+*.pubxml
 *.Publish.xml
 
 # NuGet Packages Directory
