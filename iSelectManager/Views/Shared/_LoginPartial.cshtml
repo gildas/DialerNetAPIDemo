@@ -14,7 +14,17 @@
 }
 else
 {
+    if (1 == 2)
+    {
+    <div id="loading" class="invisible">
+        <div id="loading-content">
+            <p id="loading-spinner">
+                Please wait...
+            </p>
+        </div>
+    </div>
+    }
     <ul class="nav navbar-nav navbar-right">
-        <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+        <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink"  })</li>
     </ul>
 }

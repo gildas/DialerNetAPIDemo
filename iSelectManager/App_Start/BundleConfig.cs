@@ -19,6 +19,11 @@ namespace iSelectManager
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
+            // Using Javascript spinner from: http://fgnass.github.io/spin.js/
+            bundles.Add(new ScriptBundle("~/bundles/spinner").Include(
+                      "~/Scripts/spin.js",
+                      "~/Scripts/spin-invoke.js"));
+
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                       "~/Scripts/superhero.bootstrap.js",
                       "~/Scripts/respond.js"));
