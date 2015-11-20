@@ -24,20 +24,16 @@ namespace iSelectManager.Models
             }
         }
 
+        public const string CONTACT_KEYNAME = "I3_IDENTITY";
+
         public static IEnumerable<Contact> find_all(ContactList contactList)
         {
-            var contacts = new List<Contact>();
-            var records  = contactList.find_all_contacts();
-
-            records.ForEach(record => { contacts.Add(new Contact { id = record["I3_IDENTITY"] as string, ContactList = contactList, Columns = record }); });
-            return contacts;
+            return contactList.find_all_contacts();
         }
 
         public static Contact find(ContactList contactList, string id)
         {
-            var record = contactList.find_contact(id);
-
-            return new Contact { id = record["I3_IDENTITY"] as string, ContactList = contactList, Columns = record };
+            return contactList.find_contact(id);
         }
     }
 }

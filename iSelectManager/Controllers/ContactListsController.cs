@@ -157,7 +157,7 @@ namespace iSelectManager.Controllers
 
                 if (upload != null && upload.ContentLength > 0)
                 {
-                    uploaded_records = contactList.upload_contacts(Uploader.Process(upload));
+                    uploaded_records = contactList.import_contacts(Uploader.Process(upload));
                 }
                 return RedirectToAction("Details", new { id = model.id, affected_records = uploaded_records });
             }

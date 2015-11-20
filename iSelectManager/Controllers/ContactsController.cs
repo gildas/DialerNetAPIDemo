@@ -67,10 +67,8 @@ namespace iSelectManager.Controllers
                 foreach(var key in formdata.AllKeys)
                 {
                     if (key.Equals("__RequestVerificationToken", StringComparison.InvariantCultureIgnoreCase)) continue;
-                    if (formdata[key] != null && !string.IsNullOrWhiteSpace(formdata[key]))
-                    {
-                        columns.Add(key, formdata[key]);
-                    }
+                    if (formdata[key] == null || string.IsNullOrWhiteSpace(formdata[key]))                     continue;
+                    columns.Add(key, formdata[key]);
                 }
                 contactList.insert_contact(columns, "J");
                 return RedirectToAction("Index", new { contactlist_id = contactList.id });
@@ -101,21 +99,23 @@ namespace iSelectManager.Controllers
             {
                 //db.Entry(contact).State = EntityState.Modified;
                 //db.SaveChanges();
+                if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
                 if (contactlist_id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
                 var contactList = ContactList.find(contactlist_id);
                 if (contactList == null) return HttpNotFound();
+                var contact = Contact.find(contactList, id);
+                if (contact == null) return HttpNotFound();
 
                 var columns = new Dictionary<string, object>();
 
                 foreach(var key in formdata.AllKeys)
                 {
                     if (key.Equals("__RequestVerificationToken", StringComparison.InvariantCultureIgnoreCase)) continue;
-                    if (formdata[key] != null && !string.IsNullOrWhiteSpace(formdata[key]))
-                    {
-                        columns.Add(key, formdata[key]);
-                    }
+                    if (key.Equals("id",                         StringComparison.InvariantCultureIgnoreCase)) continue;
+                    if (formdata[key] == null || string.IsNullOrWhiteSpace(formdata[key]))                     continue;
+                    columns.Add(key, formdata[key]);
                 }
-                contactList.update_contact(id, columns);
+                contactList.update_contact(contact, columns);
                 return RedirectToAction("Index", new { contactlist_id = contactList.id });
             }
             return View(formdata);
@@ -147,8 +147,8 @@ namespace iSelectManager.Controllers
             if (contactList == null) return HttpNotFound();
             var contact = Contact.find(contactList, id);
             if (contact == null) return HttpNotFound();
-            contactList.delete_contact(id);
-            return RedirectToAction("Index", new { contactlist_id = contactList.id });
+            int deleted = contactList.delete_contact(contact);
+            return RedirectToAction("Index", new { contactlist_id = contactList.id, record_count = deleted });
         }
 
         protected override void Dispose(bool disposing)
