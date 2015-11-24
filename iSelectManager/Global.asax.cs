@@ -12,6 +12,7 @@ using ININ.IceLib.Configuration;
 using ININ.IceLib.Configuration.Dialer;
 using ININ.IceLib.People;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace iSelectManager
 {
@@ -100,9 +101,13 @@ namespace iSelectManager
                     CampaignConfiguration.Property.PolicySets,
                     CampaignConfiguration.Property.SkillSets
                 });
+                configurations.ConfigurationObjectsAdded   += configurations_ConfigurationObjectsAdded;
+                configurations.ConfigurationObjectsRemoved += configurations_ConfigurationObjectsRemoved;
                 configurations.StartCaching(query_settings);
-                //configurations.StartCachingAsync(query_settings, OnCampaignCached, this);
-                CampaignConfigurations = configurations.GetConfigurationList();
+                lock (updating)
+                {
+                    CampaignConfigurations = configurations.GetConfigurationList();
+                }
             }
             catch(Exception e)
             {
@@ -110,14 +115,34 @@ namespace iSelectManager
             }
         }
 
-        private void OnCampaignCached(object sender, System.ComponentModel.AsyncCompletedEventArgs args)
+        void configurations_ConfigurationObjectsAdded(object sender, ConfigurationWatchEventArgs<CampaignConfiguration> args)
         {
-            if (args.Error != null)
+            try
             {
-                HttpContext.Current.Trace.Warn("Dialer", "Unable to cache campaigns", args.Error);
-                return;
+                lock (updating)
+                {
+                    CampaignConfigurations = (new ReadOnlyCollectionBuilder<CampaignConfiguration>(CampaignConfigurations.ToList().Concat(args.ObjectsAffected.ToList()))).ToReadOnlyCollection();
+                }
             }
+            catch(Exception e)
+            {
+                HttpContext.Current.Trace.Warn("Dialer", "Unable to retrieve campaigns", e);
+            }
+        }
 
+        void configurations_ConfigurationObjectsRemoved(object sender, ConfigurationWatchEventArgs<CampaignConfiguration> args)
+        {
+            try
+            {
+                lock (updating)
+                {
+                    CampaignConfigurations = (new ReadOnlyCollectionBuilder<CampaignConfiguration>(CampaignConfigurations.ToList().RemoveAll(item => args.ObjectsAffected.Contains(item)))).ToReadOnlyCollection();
+                }
+            }
+            catch(Exception e)
+            {
+                HttpContext.Current.Trace.Warn("Dialer", "Unable to retrieve campaigns", e);
+            }
         }
 
         private void InitializeWorkgroups(ININ.IceLib.Connection.Session session)
@@ -187,5 +212,7 @@ namespace iSelectManager
                 HttpContext.Current.Trace.Warn("Dialer", "Unable to retrieve campaigns", e);
             }
         }
+
+        private object updating = new object();
     }
 }
