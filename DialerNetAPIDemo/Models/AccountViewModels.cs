@@ -49,9 +49,12 @@ namespace DialerNetAPIDemo.Models
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Email")]
-        [EmailAddress]
-        public string Email { get; set; }
+        [Display(Name = "Server")]
+        public string Server { get; set; }
+
+        [Required]
+        [Display(Name = "User")]
+        public string User { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

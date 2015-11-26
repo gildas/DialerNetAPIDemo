@@ -58,14 +58,7 @@ namespace DialerNetAPIDemo.Controllers
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
-            ViewBag.ReturnUrl = returnUrl;
-
-            //Task.Factory.StartNew(() =>
-            //    {
-                    (HttpContext.ApplicationInstance as DialerNetAPIDemo.Application).Login();
-            //    }
-            //);
-            return RedirectToLocal(returnUrl);
+            return View();
         }
 
         //
@@ -80,9 +73,11 @@ namespace DialerNetAPIDemo.Controllers
                 return View(model);
             }
 
+            var result = (HttpContext.ApplicationInstance as DialerNetAPIDemo.Application).Login(model.Server, model.User, model.Password);
+
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+            //var result = await SignInManager.PasswordSignInAsync(model.User, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
                 case SignInStatus.Success:

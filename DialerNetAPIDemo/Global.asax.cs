@@ -13,6 +13,7 @@ using ININ.IceLib.Configuration.Dialer;
 using ININ.IceLib.People;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace DialerNetAPIDemo
 {
@@ -52,14 +53,13 @@ namespace DialerNetAPIDemo
             }
         }
 
-        public void Login()
+        public SignInStatus Login(string server, string user, string password)
         {
-            if (LoggedIn) return;
             try
             {
                 var session_settings = new SessionSettings();
-                var host_settings = new HostSettings(new HostEndpoint(WebConfigurationManager.AppSettings["ICServer"]));
-                var auth_settings = new ICAuthSettings(WebConfigurationManager.AppSettings["ICUser"], WebConfigurationManager.AppSettings["ICPassword"]);
+                var host_settings = new HostSettings(new HostEndpoint(server));
+                var auth_settings = new ICAuthSettings(user, password);
 
                 ICSession = new Session();
                 session_settings.ApplicationName = "DialerNetAPIDemo";
@@ -73,11 +73,34 @@ namespace DialerNetAPIDemo
                 InitializeWorkgroups(ICSession);
                 InitializeContactLists(ICSession);
                 InitializePolicySets(ICSession);
+                return SignInStatus.Success;
             }
-            catch (Exception e)
+            catch(ININ.IceLib.Connection.RequestTimeoutException e)
+            {
+                HttpContext.Current.Trace.Warn("CIC", "Timeout while connecting", e);
+            }
+            catch(ININ.IceLib.Connection.SessionDisconnectedException e)
             {
                 HttpContext.Current.Trace.Warn("CIC", "Unable to connect", e);
             }
+            catch(ININ.IceLib.IceLibLicenseException e)
+            {
+                HttpContext.Current.Trace.Warn("CIC", "Cannot connect, missing license", e);
+
+            }
+            catch(ININ.IceLib.IceLibException e)
+            {
+                HttpContext.Current.Trace.Warn("CIC", "Unable to connect", e);
+            }
+            catch(System.ObjectDisposedException e)
+            {
+                HttpContext.Current.Trace.Warn("CIC", "Unable to connect, session was disposed", e);
+            }
+            catch (Exception e)
+            {
+                HttpContext.Current.Trace.Warn("CIC", "Unknown error while connecting", e);
+            }
+            return SignInStatus.Failure;
         }
 
         void ICSession_ConnectionStateChanged(object sender, ConnectionStateChangedEventArgs args)
