@@ -1,0 +1,35 @@
+﻿@model DialerNetAPIDemo.Models.ContactList
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>ContactList</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>Name</dt>
+        <dd>@Html.DisplayFor(model => model.DisplayName)</dd>
+    </dl>
+
+    <ul>
+        <li>@Html.ActionLink("List", "Index", "Contacts", new { contactlist_id = Model.id }, null) all contacts</li>
+        <li>@Html.ActionLink("Insert", "Create", "Contacts", new { contactlist_id = Model.id }, null) a new contact</li>
+        <li>@Html.ActionLink("Upload", "Edit", new { id = Model.id }) many contacts</li>
+        <li>Reset Skill <b>1</b> for all contacts named <b>Dow</b> @Html.ActionLink("Update", "UpdateSkill", new { id = Model.id, name = "Dow", skill_index = 1, skill = "" })</li>
+        <li>Update Skill <b>1</b> for all contacts named <b>Dow</b> to <b>English</b> @Html.ActionLink("Update", "UpdateSkill", new { id = Model.id, name = "Dow", skill_index = 1, skill = "English" })</li>
+        <li>Assign to Campaign <b>DEV A</b> all contacts named <b>Dow</b> @Html.ActionLink("Update", "UpdateCampaign", new { id = Model.id, name = "Dow", campaign = "DEV A" })</li>
+        <li>Assign to Campaign <b>DEV B</b> all contacts named <b>Dow</b> @Html.ActionLink("Update", "UpdateCampaign", new { id = Model.id, name = "Dow", campaign = "DEV B" })</li>
+        <li>Schedule a call tomorrow in Campaign <b>DEV A</b> for all contacts named <b>Dow</b> @Html.ActionLink("Update", "ScheduleCall", new { id = Model.id, name = "Dow", campaign = "DEV A", when = DateTime.Today.AddDays(1) })</li>
+        <li>Update Status for all contacts named <b>Dow</b> to <b>Just In Time</b> @Html.ActionLink("Update", "UpdateStatus", new { id = Model.id, name = "Dow", status = "J" })</li>
+    </ul>
+</div>
+@if (Model.AffectedRecords > -1)
+{
+    <p>Affected Records: @Html.DisplayFor(model => model.AffectedRecords)</p>
+}
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,37 @@
+﻿@model DialerNetAPIDemo.Models.SkillSet
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>SkillSet</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.DisplayName)</dt>
+        <dd>@Html.DisplayFor(model => model.DisplayName)</dd>
+
+        <dt>@Html.DisplayNameFor(model => model.MinimumProficiency)</dt>
+        <dd>@Html.DisplayFor(model => model.MinimumProficiency)</dd>
+
+        @if (Model.Skills.Count() > 0)
+        {
+            <dt>@Html.DisplayNameFor(model => model.Skills)</dt>
+            <dd>
+                <table>
+                    <tr><th>Name</th><th>Database Value</th><th>Ratio</th></tr>
+                    @foreach(var skill in Model.Skills)
+                    {
+                        <tr><td>@skill.Id.DisplayName</td><td>@skill.Value</td><td>@skill.Ratio</td></tr>
+                    }
+                </table>
+            </dd>
+        }
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -1,0 +1,20 @@
+﻿@model IEnumerable<DialerNetAPIDemo.Models.CampaignViewModel>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<table class="table">
+    <tr>
+        <th>@Html.DisplayNameFor(model => model.DisplayName)</th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>@Html.ActionLink(item.DisplayName, "Details", new { id=item.id })</td>
+    </tr>
+}
+
+</table>

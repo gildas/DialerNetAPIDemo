@@ -1,0 +1,60 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>Dialer Manager</h1>
+    <p class="lead">Interaction Dialer .Net API Demonstration.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Campaigns</h2>
+        <p>Manipulate campaigns:</p>
+        <ul>
+            <li>logon agents</li>
+            <li>logoff agents</li>
+            <li>Apply Policies</li>
+        </ul>
+        @if ((HttpContext.Current.ApplicationInstance as DialerNetAPIDemo.Application).LoggedIn)
+        {
+            <p><a class="btn btn-default" href="/Campaigns">Campaigns &raquo;</a></p>
+        }
+        else
+        {
+            <p><a class="btn btn-warning disabled" href="/Campaigns">Login! &raquo;</a></p>
+        }
+    </div>
+    <div class="col-md-4">
+        <h2>Contact List</h2>
+        <p>Manipulate Contact Lists.</p>
+        @if ((HttpContext.Current.ApplicationInstance as DialerNetAPIDemo.Application).LoggedIn)
+        {
+            <p><a class="btn btn-default" href="/ContactLists">Contact Lists &raquo;</a></p>
+        }
+        else
+        {
+            <p><a class="btn btn-warning disabled" href="/ContactLists">Login! &raquo;</a></p>
+        }
+    </div>
+    <div class="col-md-4">
+        <h2>Skills and Skill Sets</h2>
+        <p>Manipulate Interaction Center Skills and Interaction Dialer Skill Sets.</p>
+        @if ((HttpContext.Current.ApplicationInstance as DialerNetAPIDemo.Application).LoggedIn)
+        {
+            <p><a class="btn btn-default" href="/Skills">Skills &raquo;</a></p>
+        }
+        else
+        {
+            <p><a class="btn btn-warning disabled" href="/Skills">Login! &raquo;</a></p>
+        }
+        @if ((HttpContext.Current.ApplicationInstance as DialerNetAPIDemo.Application).LoggedIn)
+        {
+            <p><a class="btn btn-default" href="/SkillSets">Skill Sets &raquo;</a></p>
+        }
+        else
+        {
+            <p><a class="btn btn-warning disabled" href="/SkillSets">Login! &raquo;</a></p>
+        }
+    </div>
+</div>

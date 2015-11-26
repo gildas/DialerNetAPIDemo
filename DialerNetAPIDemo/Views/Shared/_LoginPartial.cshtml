@@ -1,0 +1,30 @@
+﻿@if ((HttpContext.Current.ApplicationInstance as DialerNetAPIDemo.Application).LoggedIn)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+    @Html.AntiForgeryToken()
+
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            @Html.ActionLink("Hello " + (HttpContext.Current.ApplicationInstance as DialerNetAPIDemo.Application).Username + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage" })
+        </li>
+        <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+    </ul>
+    }
+}
+else
+{
+    if (1 == 2)
+    {
+    <div id="loading" class="invisible">
+        <div id="loading-content">
+            <p id="loading-spinner">
+                Please wait...
+            </p>
+        </div>
+    </div>
+    }
+    <ul class="nav navbar-nav navbar-right">
+        <li>@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink"  })</li>
+    </ul>
+}
